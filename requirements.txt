@@ -1,0 +1,15 @@
+# Core dependencies
+pydantic>=2.0
+pyyaml>=6.0
+rich>=13.0
+gitignore-parser>=0.1.0
+pathlib
+typing-extensions>=4.0
+
+# Dependencies for future implementation:
+# gitpython>=3.1          # For GitScanner implementation
+
+# Development dependencies (optional)
+pytest>=7.4
+black>=23.0
+ruff>=0.1

@@ -1,0 +1,49 @@
+# .scanignore - Custom ignore patterns for nighty_code scanner
+# This file works like .gitignore but is specifically for scanning operations
+# It uses the same syntax as .gitignore files
+
+# Ignore all log files
+*.log
+*.logs
+
+# Ignore build directories
+build/
+dist/
+target/
+
+# Ignore temporary files
+*.tmp
+*.temp
+*~
+
+# Ignore large data files
+*.csv
+*.json
+data/
+datasets/
+
+# Ignore documentation builds
+docs/_build/
+site/
+
+# Ignore IDE and editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore test artifacts
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Example: Ignore specific file
+# secret_config.yaml
+
+# Example: Ignore everything in a directory except specific files
+# important_dir/*
+# !important_dir/keep_this.txt

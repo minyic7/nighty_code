@@ -1,0 +1,12 @@
+#!/bin/bash
+# SBT launcher script for Unix systems
+
+SBT_VERSION="1.8.2"
+SBT_JAR="sbt-launch-${SBT_VERSION}.jar"
+
+if [ ! -f "${SBT_JAR}" ]; then
+  echo "Downloading SBT launcher..."
+  curl -L -o "${SBT_JAR}" "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/${SBT_VERSION}/${SBT_JAR}"
+fi
+
+java -Xmx2G -jar "${SBT_JAR}" "$@"

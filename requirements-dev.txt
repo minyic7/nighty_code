@@ -1,0 +1,6 @@
+# Development dependencies
+# TODO: Add development requirements
+# pytest>=7.4
+# black>=23.0
+# ruff>=0.1
+# pre-commit>=3.0
