@@ -4,7 +4,14 @@
       "Bash(mkdir:*)",
       "Bash(tree:*)",
       "Bash(mv:*)",
-      "Bash(python test_full_extraction_elt_aan.py:*)"
+      "Bash(python test_full_extraction_elt_aan.py:*)",
+      "Bash(python:*)",
+      "Bash(for file in src/nighty_code/copilot/*.py)",
+      "Bash(do wc:*)",
+      "Bash(done)",
+      "Bash(rm:*)",
+      "Bash(sed:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": [],

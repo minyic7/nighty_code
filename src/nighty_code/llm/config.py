@@ -127,6 +127,28 @@ MODELS = {
         supports_functions=False,
         supports_vision=True,
         supports_json_mode=False
+    ),
+    "claude-3-5-haiku-20241022": ModelConfig(
+        name="claude-3-5-haiku-20241022",
+        max_input_tokens=200000,
+        max_output_tokens=8192,
+        max_total_tokens=200000,
+        input_token_cost=0.001,
+        output_token_cost=0.005,
+        supports_functions=False,
+        supports_vision=True,
+        supports_json_mode=False
+    ),
+    "claude-3-5-sonnet-20241022": ModelConfig(
+        name="claude-3-5-sonnet-20241022",
+        max_input_tokens=200000,
+        max_output_tokens=8192,
+        max_total_tokens=200000,
+        input_token_cost=0.003,
+        output_token_cost=0.015,
+        supports_functions=False,
+        supports_vision=True,
+        supports_json_mode=False
     )
 }
 

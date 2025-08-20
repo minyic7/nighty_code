@@ -486,7 +486,7 @@ Return ONLY valid JSON, no additional text."""
             llm_context = self._prepare_context(file_path, content, context)
             
             # Create schema extraction prompt
-            schema_json = target_schema.schema()
+            schema_json = target_schema.model_json_schema()
             prompt = f"""Extract information from the following file to match this schema:
 
 Schema:

@@ -5,6 +5,21 @@ rich>=13.0
 gitignore-parser>=0.1.0
 pathlib
 typing-extensions>=4.0
+python-dotenv>=1.0.0
+
+# LLM & AI
+anthropic>=0.18.0
+openai>=1.0.0  # Optional, for OpenAI support
+
+# LangChain & LangGraph for intelligent reasoning
+langchain>=0.1.0
+langchain-anthropic>=0.1.0
+langchain-community>=0.1.0
+langgraph>=0.0.30
+
+# Tree-sitter for code parsing
+tree-sitter>=0.20.0
+tree-sitter-languages>=1.8.0
 
 # Dependencies for future implementation:
 # gitpython>=3.1          # For GitScanner implementation

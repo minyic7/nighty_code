@@ -42,6 +42,9 @@ class TokenCounter:
     def get_encoder(cls, model: str):
         """Get the appropriate encoder for a model."""
         
+        if not TIKTOKEN_AVAILABLE:
+            return None
+        
         # Check cache first
         if model in cls._encoders:
             return cls._encoders[model]
@@ -78,6 +81,10 @@ class TokenCounter:
             Number of tokens
         """
         
+        if not TIKTOKEN_AVAILABLE:
+            # Fallback: estimate tokens (roughly 4 chars per token)
+            return len(text) // 4
+        
         encoder = cls.get_encoder(model)
         return len(encoder.encode(text))
     
@@ -97,6 +104,11 @@ class TokenCounter:
         Returns:
             Total number of tokens
         """
+        
+        if not TIKTOKEN_AVAILABLE:
+            # Fallback: estimate based on text length
+            total_chars = sum(len(m.get("content", "")) + len(m.get("role", "")) for m in messages)
+            return total_chars // 4
         
         encoder = cls.get_encoder(model)
         
@@ -148,6 +160,16 @@ class TokenCounter:
         Returns:
             Truncated text
         """
+        
+        if not TIKTOKEN_AVAILABLE:
+            # Fallback: estimate based on character count
+            estimated_chars = max_tokens * 4
+            if len(text) <= estimated_chars:
+                return text
+            if from_end:
+                return text[-estimated_chars:]
+            else:
+                return text[:estimated_chars]
         
         encoder = cls.get_encoder(model)
         tokens = encoder.encode(text)

@@ -1,201 +1,128 @@
 # Nighty Code
 
-A modular Python framework for analyzing and understanding code repositories using intelligent parser selection - combining fast tree-sitter parsers with flexible LLM fallback for universal file support.
+An intelligent code analysis framework that provides repository-aware copilot functionality using cached artifacts and LLM integration.
 
-## 🎯 Key Features
+## Features
 
-- **Intelligent Parser Selection**: Automatically chooses between tree-sitter (fast, free) and LLM (flexible, universal)
-- **Universal File Support**: Handles any text-based file format through dynamic entity models
-- **Identity Cards**: Rich metadata cards for every file including dependencies and relationships
-- **Cost Optimization**: Prefers free tree-sitter parsing, falls back to LLM only when needed
-- **Structured Extraction**: Extract custom information using user-defined Pydantic schemas
-- **Comprehensive Analysis**: Entities, relationships, dependencies, and repository-wide graphs
+- **Repository Analysis**: Extracts code structure, dependencies, and relationships
+- **Intelligent Q&A**: Answer questions about your codebase using LLM (Claude)
+- **Artifact Caching**: Saves analysis results to avoid reprocessing
+- **MCP Tools**: Selective context loading to prevent token explosion
+- **Interactive Copilot**: Chat interface for repository exploration
 
-## 📊 Project Status
-
-### ✅ Completed Components
-
-- **Core Infrastructure**: Scanner, classifier, file type detection
-- **Tree-sitter Parsers**: Scala (fully implemented), Python/Java/JS (placeholders)
-- **LLM Integration**: Anthropic Claude support with token management
-- **Dynamic Models**: Flexible entity types that accommodate any file format
-- **Identity Cards**: Version 3.0 with upstream/downstream dependencies
-- **Extraction Pipeline**: Intelligent parser selection with fallback strategy
-- **Storage System**: JSON-based artifact storage with organized structure
-
-### 🚧 In Progress
-
-- Additional tree-sitter parsers
-- Neo4j graph database integration
-- MCP (Model Context Protocol) server
-- Web UI for visualization
-
-## 🏗️ Architecture
-
-```
-nighty_code/
-├── src/nighty_code/
-│   ├── core/           # Scanner, classifier, base models
-│   ├── parsers/        # Language parsers (tree-sitter + LLM)
-│   │   ├── tree_sitter/  # Fast, deterministic parsers
-│   │   ├── llm/          # Flexible LLM-based parser
-│   │   └── model/        # Entity and relationship models
-│   ├── identity/       # Identity card generation with LLM summaries
-│   ├── extraction/     # Structured extraction with schema support
-│   ├── storage/        # Artifact persistence
-│   ├── llm/           # LLM client implementations
-│   └── graph/         # Graph building (Neo4j ready)
-├── tests/             # Comprehensive test suite
-├── scripts/           # Utility scripts
-├── docs/              # Documentation
-└── examples/          # Usage examples
-```
-
-## 🚀 Quick Start
-
-### Installation
+## Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/nighty_code.git
 cd nighty_code
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
 # Install dependencies
-pip install -e .
-```
+pip install -r requirements.txt
 
-### Configuration
-
-```bash
-# Create .env file for API keys
+# Set up API key
 echo "ANTHROPIC_API_KEY=your_api_key_here" > .env
 ```
 
-### Basic Usage
+## Quick Start
 
-```python
-from nighty_code.extraction import StructuredExtractor, ExtractionConfig
-from pathlib import Path
-
-# Configure extraction
-config = ExtractionConfig(
-    use_tree_sitter_when_available=True,  # Fast, free parsing
-    use_llm_fallback=True,                # Universal coverage
-    generate_identity_cards=True          # Rich metadata
-)
-
-# Extract from repository
-extractor = StructuredExtractor(config)
-response = extractor.extract_from_repository(
-    repository_path=Path("path/to/repo"),
-    max_files=None  # Process all files
-)
-
-print(f"Processed {response.files_processed} files")
-print(f"Tree-sitter used: {response.parser_usage['tree_sitter']} files")
-print(f"LLM used: {response.parser_usage['llm']} files")
+### 1. Generate Artifacts
+```bash
+python setup_artifacts.py
 ```
 
-## 🔧 Parser Strategy
-
-The system uses an intelligent parser selection strategy:
-
-1. **Is file supported by tree-sitter?** → Use tree-sitter (fast, accurate, free)
-2. **Is file a known config/script format?** → Use LLM with specialized prompts
-3. **Unknown file type?** → Use LLM as universal fallback
-
-### Supported Tree-sitter Languages
-- ✅ Scala (fully implemented)
-- 🚧 Python, Java, JavaScript, TypeScript, Go (placeholders)
-
-### LLM-Supported Formats
-- ✅ Any text-based file format
-- ✅ YAML, JSON, XML, TOML configurations
-- ✅ SQL, Dockerfile, Shell scripts
-- ✅ Markdown, documentation files
-
-## 📈 Performance
-
-Based on elt.aan.aan repository analysis:
-- **18 files processed**: 100% success rate
-- **4 Scala files**: Parsed with tree-sitter in <50ms each
-- **14 other files**: Parsed with LLM in 5-10s each
-- **Cost savings**: ~21% reduction in API calls through intelligent selection
-
-## 🧩 Dynamic Entity Models
-
-The system uses flexible entity types to handle any file format:
-
-```python
-# Instead of rigid enums:
-class EntityType(Enum):
-    CLASS = "class"
-    FUNCTION = "function"
-    # Limited to predefined types...
-
-# We use dynamic models:
-class DynamicEntity:
-    entity_type: str  # Any string is valid
-    # LLM can produce: "view", "stored_procedure", "workflow", etc.
+### 2. Test the Copilot
+```bash
+python test_copilot.py
 ```
 
-## 📝 Identity Cards
+### 3. Interactive Session
+```bash
+python test_copilot_interactive.py
 
-Each file gets a comprehensive identity card with:
-- File metadata and classification
-- Purpose description
-- Upstream dependencies (files it depends on)
-- Downstream dependencies (files that depend on it)
-- List of entities defined
-- LLM-generated summary (optional)
+# Or analyze your own repository
+python test_copilot_interactive.py /path/to/your/repo
+```
 
-## 🤝 Contributing
+## Usage in Code
 
-Contributions are welcome! Areas of focus:
-1. Implementing more tree-sitter parsers
-2. Improving LLM prompts for specific file types
-3. Adding visualization components
-4. Enhancing the Neo4j integration
+```python
+from nighty_code.copilot import CopilotClient
 
-## 📄 License
+# Initialize copilot for a repository
+copilot = CopilotClient(
+    repository_path="path/to/repo",
+    llm_provider="anthropic",
+    llm_model="claude-3-5-haiku-20241022"
+)
 
-MIT License - see LICENSE file for details
+# Ask questions
+answer = copilot.ask("How do I use this repository?")
+print(answer)
 
-## 🔮 Roadmap
+# Search for code elements
+results = copilot.search_code(["export", "process"])
 
-### Phase 1: Core Infrastructure ✅
-- Repository scanning
-- File classification
-- Basic entity extraction
+# Get file information
+info = copilot.get_file_info("src/main.py")
+```
 
-### Phase 2: Parser Framework ✅
-- Tree-sitter integration
-- LLM fallback system
-- Dynamic entity models
+## Architecture
 
-### Phase 3: Identity & Relationships ✅
-- Identity card generation
-- Dependency tracking
-- LLM summaries
+```
+nighty_code/
+├── core/               # Core functionality (repository context, artifact management)
+├── copilot/            # Main copilot interface with LLM integration
+├── mcp/                # Model Context Protocol tools for artifact queries
+├── llm/                # LLM client (Anthropic Claude)
+├── extraction/         # Code extraction and analysis
+├── parsers/            # Language-specific parsing (Scala, Python, etc.)
+├── storage/            # Artifact storage and formats
+└── identity/           # Identity card generation for files
+```
 
-### Phase 4: Graph Database 🚧
-- Neo4j integration
-- Graph visualization
-- Query interface
+## Key Components
 
-### Phase 5: API & Tools 🚧
-- MCP server
-- REST API
-- Web UI
+- **CopilotClient**: Main interface for repository Q&A
+- **RepositoryContext**: Manages artifact loading and caching
+- **ArtifactTools**: MCP tools for selective context queries
+- **LLMClient**: Unified interface for LLM providers
 
-## 📞 Contact
+## Example Questions
 
-For questions or suggestions, please open an issue on GitHub.
+The copilot can answer questions like:
+- "How do I use this repository?"
+- "What is the project structure?"
+- "What are the main components?"
+- "Show me all configuration files"
+- "How does the export functionality work?"
+- "What are the dependencies?"
 
----
+## Environment Variables
 
-**Note**: This project is under active development. APIs may change between versions.
+```bash
+ANTHROPIC_API_KEY=your_api_key      # Required for LLM features
+LLM_PROVIDER=anthropic               # Default: anthropic
+LLM_MODEL=claude-3-5-haiku-20241022 # Default model
+```
+
+## Development
+
+```bash
+# Run tests
+pytest tests/
+
+# Generate artifacts for sample repository
+python setup_artifacts.py
+
+# Test with sample repository
+python test_copilot.py
+```
+
+## License
+
+MIT
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.

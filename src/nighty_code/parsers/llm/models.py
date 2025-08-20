@@ -100,7 +100,7 @@ class LocationModel(BaseModel):
     column_end: Optional[int] = Field(None, description="Ending column")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "line_start": 10,
                 "line_end": 25,
@@ -129,7 +129,7 @@ class EntityModel(BaseModel):
     
     class Config:
         use_enum_values = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "ProcessData",
                 "entity_type": "method",
@@ -153,7 +153,7 @@ class RelationshipModel(BaseModel):
     
     class Config:
         use_enum_values = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "source_entity": "DataProcessor",
                 "target_entity": "DataValidator",
@@ -177,7 +177,7 @@ class FileMetricsModel(BaseModel):
     code_lines: Optional[int] = Field(None, description="Number of actual code lines")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "line_count": 150,
                 "size_bytes": 4096,
@@ -202,7 +202,7 @@ class FileEntityModel(BaseModel):
     
     class Config:
         use_enum_values = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "file_path": "src/main/scala/DataProcessor.scala",
                 "file_type": "scala",
@@ -225,7 +225,7 @@ class ExtractionResultModel(BaseModel):
     extraction_time_ms: Optional[float] = Field(None, description="Time taken for extraction in milliseconds")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "file_entity": {},
@@ -250,7 +250,7 @@ class EntityInfoModel(BaseModel):
     line_number: Optional[int] = Field(None, description="Line number where entity is defined")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "DataProcessor",
                 "type": "class",
@@ -292,7 +292,7 @@ class IdentityCardModel(BaseModel):
     version: str = Field("2.0.0", description="Schema version")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "card_id": "card_abc123",
                 "file_name": "DataProcessor.scala",
@@ -323,7 +323,7 @@ class ClassificationModel(BaseModel):
     
     class Config:
         use_enum_values = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "file_path": "src/main/scala/DataProcessor.scala",
                 "file_type": "scala",
@@ -351,7 +351,7 @@ class CrossFileRelationshipModel(BaseModel):
     confidence: float = Field(1.0, ge=0.0, le=1.0, description="Confidence score")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "source_file": "DataProcessor.scala",
                 "target_file": "DataValidator.scala",
@@ -386,7 +386,7 @@ class RepositoryGraphModel(BaseModel):
     )
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "total_files": 10,
                 "total_entities": 50,
@@ -421,7 +421,7 @@ class ExtractionRequest(BaseModel):
     max_files: Optional[int] = Field(None, description="Maximum files to process")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "repository_path": "/path/to/repo",
                 "use_llm_fallback": True,
@@ -456,7 +456,7 @@ class ExtractionResponse(BaseModel):
     llm_tokens_used: Optional[int] = Field(None, description="Total LLM tokens consumed")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "files_processed": 10,

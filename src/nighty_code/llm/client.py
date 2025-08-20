@@ -109,6 +109,14 @@ class LLMClient:
             
             self.client = openai
             
+        elif self.config.provider == LLMProvider.ANTHROPIC:
+            if not self.config.api_key:
+                raise ConfigurationError("Anthropic API key not provided")
+            
+            # Import and initialize Anthropic client
+            from ..llm.anthropic_client import AnthropicClient
+            self.client = AnthropicClient(self.config.api_key)
+            
         else:
             raise ConfigurationError(f"Provider {self.config.provider} not yet implemented")
     
@@ -309,6 +317,26 @@ class LLMClient:
                         presence_penalty=kwargs.get("presence_penalty", self.model_config.presence_penalty),
                         **{k: v for k, v in kwargs.items() if k not in ["top_p", "frequency_penalty", "presence_penalty"]}
                     )
+                
+                elif self.config.provider == LLMProvider.ANTHROPIC:
+                    # Anthropic messages API
+                    # Extract system message if present
+                    system = None
+                    user_messages = []
+                    for msg in messages:
+                        if msg["role"] == "system":
+                            system = msg["content"]
+                        else:
+                            user_messages.append(msg)
+                    
+                    response = self.client.create_message(
+                        model=self.config.model,
+                        messages=user_messages,
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                        system=system,
+                        **kwargs
+                    )
                     return response
                     
             except Exception as e:
@@ -329,6 +357,14 @@ class LLMClient:
         if self.config.provider == LLMProvider.OPENAI:
             if hasattr(response, "choices") and response.choices:
                 return response.choices[0].message.content
+        elif self.config.provider == LLMProvider.ANTHROPIC:
+            # Anthropic returns a dict with 'content' field
+            if isinstance(response, dict) and "content" in response:
+                # The content is a list of content blocks
+                content_blocks = response.get("content", [])
+                if content_blocks and isinstance(content_blocks, list):
+                    # Extract text from first content block
+                    return content_blocks[0].get("text", "")
         
         return ""
     
@@ -341,6 +377,15 @@ class LLMClient:
                     "prompt_tokens": response.usage.prompt_tokens,
                     "completion_tokens": response.usage.completion_tokens,
                     "total_tokens": response.usage.total_tokens
+                }
+        elif self.config.provider == LLMProvider.ANTHROPIC:
+            # Anthropic returns usage in the response
+            if isinstance(response, dict) and "usage" in response:
+                usage = response["usage"]
+                return {
+                    "prompt_tokens": usage.get("input_tokens", 0),
+                    "completion_tokens": usage.get("output_tokens", 0),
+                    "total_tokens": usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
                 }
         
         return {}

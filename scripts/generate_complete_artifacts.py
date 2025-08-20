@@ -9,9 +9,12 @@ from pathlib import Path
 from datetime import datetime
 import shutil
 
-from src.nighty_code.core.classifier import FileClassifier
-from src.nighty_code.identity.card_builder import IdentityCardBuilder
-from src.nighty_code.parsers.model.scala_model import ScalaModelExtractor
+import sys
+sys.path.append(str(Path(__file__).parent.parent / "src"))
+
+from nighty_code.core.classifier import FileClassifier
+from nighty_code.identity.card_builder import IdentityCardBuilder
+from nighty_code.parsers.model.scala_model import ScalaModelExtractor
 
 
 def create_test_repository():
