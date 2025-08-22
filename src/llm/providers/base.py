@@ -42,6 +42,27 @@ class BaseLLMProvider(ABC):
         self.middleware_chain = MiddlewareChain()
         self.rate_limiter: Optional[ClientRateLimiter] = None
         
+        # Add logging middleware (first in chain for request/response logging)
+        logging_middleware = LoggingMiddleware()
+        self.middleware_chain.add(logging_middleware)
+        logger.debug(f"Logging middleware enabled for {self._client_id}")
+        
+        # Add metrics middleware (tracks performance metrics)
+        metrics_middleware = MetricsMiddleware()
+        self.middleware_chain.add(metrics_middleware)
+        logger.debug(f"Metrics middleware enabled for {self._client_id}")
+        
+        # Add retry middleware (handles transient failures)
+        retry_middleware = RetryMiddleware(
+            max_retries=config.max_retries if hasattr(config, 'max_retries') else 3,
+            base_delay=1.0,
+            max_delay=60.0,
+            exponential_base=2.0,
+            jitter=True
+        )
+        self.middleware_chain.add(retry_middleware)
+        logger.debug(f"Retry middleware enabled for {self._client_id} with max_retries={retry_middleware.max_retries}")
+        
         # Add rate limiter middleware if config provided
         if rate_limit_config:
             self.rate_limiter = ClientRateLimiter(self._client_id, rate_limit_config)
