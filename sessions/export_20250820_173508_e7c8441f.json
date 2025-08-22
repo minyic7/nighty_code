@@ -1,0 +1,18 @@
+{
+  "session": {
+    "session_id": "20250820_173508_e7c8441f",
+    "created_at": "2025-08-20T17:35:08.856414",
+    "last_activity": "2025-08-20T17:35:08.856414",
+    "interaction_count": 0,
+    "intent_distribution": {},
+    "unique_files_examined": 0,
+    "tools_used": [],
+    "average_confidence": 0
+  },
+  "messages": [],
+  "context": {
+    "repository": "C:\\Users\\User\\Projects\\nighty_code",
+    "files_examined": [],
+    "patterns_found": {}
+  }
+}

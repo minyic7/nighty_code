@@ -30,6 +30,12 @@ class TokenCounter:
         "text-davinci-003": "p50k_base",
         "text-davinci-002": "p50k_base",
         "code-davinci-002": "p50k_base",
+        # Claude models use cl100k_base encoding
+        "claude-3-5-haiku-20241022": "cl100k_base",
+        "claude-3-5-sonnet-20241022": "cl100k_base",
+        "claude-3-opus-20240229": "cl100k_base",
+        "claude-3-sonnet-20240229": "cl100k_base",
+        "claude-3-haiku-20240307": "cl100k_base",
     }
     
     # Approximate tokens per message overhead

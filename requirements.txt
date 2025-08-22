@@ -3,7 +3,6 @@ pydantic>=2.0
 pyyaml>=6.0
 rich>=13.0
 gitignore-parser>=0.1.0
-pathlib
 typing-extensions>=4.0
 python-dotenv>=1.0.0
 

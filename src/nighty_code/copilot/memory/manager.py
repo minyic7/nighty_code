@@ -22,8 +22,8 @@ import warnings
 # Suppress LangChain deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain")
 
-from ..llm.client import LLMClient
-from ..llm.token_utils import TokenCounter
+from ...llm.client import LLMClient
+from ...llm.token_utils import TokenCounter
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ class CopilotMemory:
         Returns:
             LangChain LLM instance
         """
-        from ..llm.config import LLMProvider
+        from ...llm.config import LLMProvider
         
         # Get configuration from our client
         config = llm_client.config
@@ -253,6 +253,56 @@ class CopilotMemory:
             context_parts.append(f"\nFiles Discussed: {files_str}")
         
         return "\n\n".join(context_parts)
+    
+    def get_recent_exchanges(self, n: int = 2) -> List[Dict[str, str]]:
+        """
+        Get the most recent n exchanges from memory.
+        
+        Args:
+            n: Number of recent exchanges to retrieve
+            
+        Returns:
+            List of dictionaries with 'input' and 'response' keys
+        """
+        exchanges = []
+        
+        # Get memory variables
+        memory_vars = self.base_memory.load_memory_variables({})
+        
+        # Extract from history
+        if "history" in memory_vars:
+            history = memory_vars["history"]
+            
+            # Handle different history formats
+            if isinstance(history, list):
+                # Process message objects
+                for i in range(0, len(history), 2):
+                    if i + 1 < len(history):
+                        # Assuming alternating human/assistant messages
+                        human_msg = history[i]
+                        assistant_msg = history[i + 1]
+                        
+                        exchange = {
+                            'input': getattr(human_msg, 'content', str(human_msg)),
+                            'response': getattr(assistant_msg, 'content', str(assistant_msg))
+                        }
+                        exchanges.append(exchange)
+            elif isinstance(history, str):
+                # Parse string history
+                lines = history.split('\n')
+                current_exchange = {}
+                
+                for line in lines:
+                    if line.startswith('Human:'):
+                        current_exchange['input'] = line.replace('Human:', '').strip()
+                    elif line.startswith('Assistant:') or line.startswith('AI:'):
+                        current_exchange['response'] = line.replace('Assistant:', '').replace('AI:', '').strip()
+                        if 'input' in current_exchange:
+                            exchanges.append(current_exchange)
+                            current_exchange = {}
+        
+        # Return the last n exchanges
+        return exchanges[-n:] if exchanges else []
     
     def _extract_references(self, user_input: str, assistant_response: str):
         """Extract file and folder references from messages."""

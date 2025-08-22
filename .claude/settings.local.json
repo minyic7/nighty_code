@@ -11,7 +11,8 @@
       "Bash(done)",
       "Bash(rm:*)",
       "Bash(sed:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": [],

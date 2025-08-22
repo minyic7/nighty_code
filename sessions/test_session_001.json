@@ -1,0 +1,15 @@
+{
+  "state": {
+    "session_id": "test_session_001",
+    "repository_path": "sample_repos\\elt.aan.aan",
+    "started_at": "2025-08-19T18:48:16.987467",
+    "questions_asked": 0,
+    "files_read": 0,
+    "explored_files": [],
+    "file_insights": {}
+  },
+  "repo_memory": {
+    "file_insights": {}
+  },
+  "timestamp": "2025-08-19T18:48:17.017005"
+}
