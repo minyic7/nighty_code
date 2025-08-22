@@ -1,29 +1,13 @@
-# Core dependencies
-pydantic>=2.0
-pyyaml>=6.0
-rich>=13.0
-gitignore-parser>=0.1.0
-typing-extensions>=4.0
-python-dotenv>=1.0.0
+# Core LLM Providers
+openai>=1.0.0
+anthropic>=0.25.0
 
-# LLM & AI
-anthropic>=0.18.0
-openai>=1.0.0  # Optional, for OpenAI support
+# Utilities
+python-dotenv>=1.0.0  # For loading .env files with API keys
+PyYAML>=6.0.0  # For YAML file parsing and generation
 
-# LangChain & LangGraph for intelligent reasoning
-langchain>=0.1.0
-langchain-anthropic>=0.1.0
-langchain-community>=0.1.0
-langgraph>=0.0.30
-
-# Tree-sitter for code parsing
-tree-sitter>=0.20.0
-tree-sitter-languages>=1.8.0
-
-# Dependencies for future implementation:
-# gitpython>=3.1          # For GitScanner implementation
-
-# Development dependencies (optional)
-pytest>=7.4
-black>=23.0
-ruff>=0.1
+# Tokenizers for accurate token counting
+tiktoken>=0.5.0  # OpenAI tokenizer
+# anthropic  # Already included above, has built-in token counting
+google-generativeai>=0.3.0  # Google Gemini tokenizer
+cohere>=4.0.0  # Cohere tokenizer

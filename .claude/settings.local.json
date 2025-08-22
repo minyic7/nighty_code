@@ -12,7 +12,8 @@
       "Bash(rm:*)",
       "Bash(sed:*)",
       "Bash(pip install:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(touch:*)"
     ],
     "deny": [],
     "ask": [],
