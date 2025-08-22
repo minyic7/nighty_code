@@ -1,0 +1,61 @@
+# LLM Configuration File
+
+# Global settings
+global:
+  default_provider: anthropic
+  enable_logging: true
+  log_level: INFO
+  metrics_enabled: true
+
+# Provider configurations
+providers:
+  anthropic:
+    api_keys:
+      - <anthropic_api_keys>
+      - <anthropic_api_keys>
+      - <anthropic_api_keys>
+      - <anthropic_api_keys>
+    models:
+      - claude-3-5-haiku-20241022
+      - claude-3-5-haiku-20241022
+      - claude-3-5-haiku-20241022
+      - claude-3-5-haiku-20241022
+    rate_limits:
+      - requests_per_minute: 12
+        input_tokens_per_minute: 5000
+        output_tokens_per_minute: 2000
+      - requests_per_minute: 12
+        input_tokens_per_minute: 5000
+        output_tokens_per_minute: 2000
+      - requests_per_minute: 12
+        input_tokens_per_minute: 5000
+        output_tokens_per_minute: 2000
+      - requests_per_minute: 12
+        input_tokens_per_minute: 5000
+        output_tokens_per_minute: 2000
+    settings:
+      temperature: 0.7
+      max_tokens: 4096
+      timeout: 30
+      max_retries: 3
+  
+  openai:
+    api_keys: []
+    models: []
+    rate_limits: []
+    settings:
+      temperature: 0.7
+      max_tokens: 4096
+      timeout: 30
+      max_retries: 3
+
+# Connection pool configuration
+pool:
+  min_size: 1
+  max_size: 4  # Updated to match 4 API keys
+  acquire_timeout: 30.0  # Increased from 10.0 to handle burst traffic better
+  idle_timeout: 3600.0
+  max_lifetime: 7200.0
+  retry_on_error: true
+  health_check_interval: 60.0
+  enable_metrics: true
