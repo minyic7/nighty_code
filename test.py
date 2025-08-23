@@ -1,4 +1,4 @@
-from src.nighty_code.copilot import CopilotClient
+from src.copilot import CopilotClient
 
 # Initialize copilot
 copilot = CopilotClient(use_mcp=True)

@@ -78,7 +78,7 @@ class LLMManager(AsyncContextManagerMixin):
         await pool.initialize()
         
         self._pools[provider] = pool
-        self._clients[provider] = LLMClient(pool)
+        self._clients[provider] = LLMClient(pool, self._config_manager.global_config.instructor_config)
         
         logger.info(f"Created pool for {provider.value} with {len(configs)} configurations")
         return pool

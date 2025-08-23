@@ -22,11 +22,22 @@ class PoolConfig:
 
 
 @dataclass
+class InstructorConfig:
+    """Configuration for Instructor (structured outputs)"""
+    enabled: bool = True
+    max_retries: int = 3
+    validation: str = "strict"  # strict or loose
+    mode: str = "json"  # json or function
+    timeout: float = 30.0
+    
+
+@dataclass
 class GlobalConfig:
     """Global configuration for the LLM module"""
     default_provider: Optional[LLMProvider] = None
     providers: Dict[LLMProvider, LLMConfig] = field(default_factory=dict)
     pool_config: PoolConfig = field(default_factory=PoolConfig)
+    instructor_config: InstructorConfig = field(default_factory=InstructorConfig)
     enable_logging: bool = True
     log_level: str = "INFO"
     metrics_enabled: bool = True

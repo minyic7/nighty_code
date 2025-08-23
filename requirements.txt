@@ -16,3 +16,6 @@ cohere>=4.0.0  # Cohere tokenizer
 mcp>=1.0.0  # Official MCP Python SDK
 pydantic>=2.0.0  # For data validation and serialization
 aiofiles>=23.0.0  # Async file operations for filesystem server
+
+# Structured Output Dependencies
+instructor>=1.3.0  # For structured LLM outputs with Pydantic models
