@@ -119,6 +119,8 @@ class BaseMCPServer(ABC):
             # Convert result to standard format
             if isinstance(result, str):
                 content = [TextContent(text=result)]
+            elif isinstance(result, TextContent):
+                content = [result]
             elif isinstance(result, list):
                 content = result
             else:

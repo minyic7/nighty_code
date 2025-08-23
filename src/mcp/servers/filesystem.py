@@ -38,9 +38,10 @@ class FilesystemServer(BaseMCPServer):
         self.allowed_extensions = allowed_extensions or []
         self.max_file_size = max_file_size
         
-        # Validate root path
+        # Validate and resolve root path
         if not self.root_path.exists():
             raise MCPValidationError(f"Root path does not exist: {self.root_path}")
+        self.root_path = self.root_path.resolve()  # Always work with resolved paths
             
         logger.info(f"Filesystem server initialized with root: {self.root_path}")
         
@@ -174,8 +175,10 @@ class FilesystemServer(BaseMCPServer):
         except Exception as e:
             raise MCPValidationError(f"Invalid path: {e}")
             
-        # Ensure path is within root
-        if not str(full_path).startswith(str(self.root_path)):
+        # Ensure path is within root (self.root_path is already resolved in __init__)
+        try:
+            full_path.relative_to(self.root_path)
+        except ValueError:
             raise MCPValidationError(f"Path outside root directory: {path}")
             
         return full_path
