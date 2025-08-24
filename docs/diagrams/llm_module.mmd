@@ -1,0 +1,71 @@
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
+
+graph TB
+    %% LLM Module Architecture
+    
+    subgraph Input["📥 Input Layer"]
+        User[/"User Request"/]
+        Messages["Messages[]<br/>- System<br/>- User<br/>- Assistant"]
+        Schema["Pydantic Schema<br/>(Optional)"]
+    end
+    
+    subgraph Manager["🎛️ LLM Manager"]
+        Config["Configuration<br/>- Retry Policy<br/>- Rate Limits<br/>- Pool Size"]
+        ProviderSelect["Provider Selection<br/>- Anthropic<br/>- OpenAI<br/>- Fallback"]
+        ClientPool["Connection Pool<br/>🔌🔌🔌"]
+    end
+    
+    subgraph Middleware["⚙️ Middleware Pipeline"]
+        direction LR
+        MW1["🔁 Retry<br/>Exponential Backoff"]
+        MW2["⏱️ Rate Limiter<br/>Token & Request"]
+        MW3["📊 Metrics<br/>Latency & Usage"]
+        MW4["📝 Logger<br/>Request/Response"]
+        MW5["🔢 Token Calculator<br/>Count & Validate"]
+        
+        MW1 --> MW2
+        MW2 --> MW3
+        MW3 --> MW4
+        MW4 --> MW5
+    end
+    
+    subgraph Providers["🤖 Provider Layer"]
+        Anthropic["Claude API<br/>- claude-3-opus<br/>- claude-3-sonnet"]
+        OpenAI["OpenAI API<br/>- gpt-4<br/>- gpt-3.5-turbo"]
+        Instructor["Instructor<br/>Structured Output"]
+    end
+    
+    subgraph Output["📤 Output Layer"]
+        Response["Response<br/>- Content<br/>- Usage<br/>- Metadata"]
+        Stream["Stream<br/>Token by Token"]
+        Structured["Structured Data<br/>Type-Safe Objects"]
+    end
+    
+    %% Flow connections
+    User --> Messages
+    Messages --> Manager
+    Schema -.->|Optional| Manager
+    
+    Manager --> Config
+    Config --> ProviderSelect
+    ProviderSelect --> ClientPool
+    ClientPool --> Middleware
+    
+    Middleware --> Providers
+    
+    Anthropic --> Instructor
+    OpenAI --> Instructor
+    
+    Instructor --> Response
+    Instructor --> Stream
+    Instructor --> Structured
+    
+    %% Feedback loops
+    Response -.->|Metrics| MW3
+    Stream -.->|Tokens| MW5
+    
+    style Input fill:#1e293b,stroke:#3b82f6,stroke-width:2px
+    style Manager fill:#1e3a5f,stroke:#60a5fa,stroke-width:2px
+    style Middleware fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
+    style Providers fill:#1e3a5f,stroke:#10b981,stroke-width:2px
+    style Output fill:#1e293b,stroke:#f59e0b,stroke-width:2px

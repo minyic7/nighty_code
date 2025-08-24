@@ -1,314 +1,283 @@
 # LLM Module
 
-A robust, production-ready LLM client module with built-in connection pooling, automatic retries, and Instructor integration for structured outputs.
+A production-ready Python module for interacting with multiple Large Language Model providers with advanced features like structured output, streaming, middleware, and connection pooling.
 
 ## Features
 
-### Core Capabilities
-- **Multi-Provider Support**: Anthropic, OpenAI, Google, Groq, and local models
-- **Connection Pooling**: Efficient management of multiple API keys with load balancing
-- **Automatic Retries**: Exponential backoff with jitter for transient failures
-- **Structured Outputs**: Seamless Instructor integration for type-safe responses
-- **Rate Limiting**: Built-in rate limit handling and backpressure management
-- **Unified Interface**: Consistent API across all providers
+### 🚀 Core Capabilities
+- **Multi-Provider Support**: Seamlessly switch between Anthropic Claude and OpenAI GPT models
+- **Structured Output**: Use Pydantic models with Instructor for type-safe responses
+- **Streaming**: Real-time token streaming for responsive applications
+- **Connection Pooling**: Efficient resource management for high-throughput scenarios
+- **Async/Await**: Full async support for non-blocking operations
 
-### Key Components
+### 🛡️ Middleware System
+- **Retry Logic**: Automatic retries with exponential backoff
+- **Rate Limiting**: Prevent API throttling with configurable limits
+- **Token Management**: Track and control token usage
+- **Metrics Collection**: Monitor performance and usage statistics
+- **Request/Response Logging**: Comprehensive logging for debugging
 
-#### 1. LLM Manager (`core/manager.py`)
-Centralized management of LLM clients:
-- Provider registration and configuration
-- Client lifecycle management
-- Configuration validation
-- Singleton pattern for resource efficiency
-
-#### 2. Base Provider (`providers/base.py`)
-Abstract base for all LLM providers:
-- Common interface definition
-- Instructor integration
-- Middleware support
-- Error handling patterns
-
-#### 3. Connection Pool (`core/pool.py`)
-Advanced connection management:
-- Round-robin load balancing across API keys
-- Health tracking per connection
-- Automatic failover on errors
-- Configurable pool sizes
-
-## Architecture
-
-```
-LLMManager (Singleton)
-    ↓
-Provider Registry
-    ↓
-Connection Pool (per provider)
-    ↓
-Individual Clients (with Instructor)
-    ↓
-API Endpoints
-```
+### 🎯 Advanced Features
+- **Multi-turn Conversations**: Maintain context across interactions
+- **Temperature Control**: Fine-tune response creativity
+- **Custom Models**: Support for specific model versions
+- **Error Handling**: Robust exception handling with detailed error messages
+- **Provider Fallback**: Automatic fallback to alternative providers
 
 ## Installation
 
 ```bash
-pip install instructor  # For structured outputs
-pip install anthropic  # For Anthropic
-pip install openai     # For OpenAI
+# Install required dependencies
+pip install anthropic openai instructor pydantic tiktoken
 ```
 
-## Usage
-
-### Basic Usage
+## Quick Start
 
 ```python
-from src.llm import get_llm_manager, LLMProvider, Message, MessageRole
+import asyncio
+from src.llm import LLMManager, Message, MessageRole, LLMProvider
 
-# Get manager instance
-manager = await get_llm_manager()
+async def main():
+    # Initialize manager
+    manager = LLMManager()
+    
+    # Get client for specific provider
+    client = manager.get_client(LLMProvider.ANTHROPIC)
+    
+    # Create messages
+    messages = [
+        Message(role=MessageRole.USER, content="What is Python?")
+    ]
+    
+    # Get completion
+    response = await client.complete(messages=messages)
+    print(response.content)
 
-# Get a client
-client = manager.get_client(LLMProvider.ANTHROPIC)
-
-# Make a completion request
-messages = [
-    Message(MessageRole.SYSTEM, "You are a helpful assistant"),
-    Message(MessageRole.USER, "What is the capital of France?")
-]
-
-response = await client.complete(messages)
-print(response.content)
+asyncio.run(main())
 ```
 
-### Structured Outputs with Instructor
+## Structured Output Example
 
 ```python
 from pydantic import BaseModel, Field
 from typing import List
 
-# Define your output schema
-class CityInfo(BaseModel):
-    name: str = Field(description="City name")
-    country: str = Field(description="Country name")
-    population: int = Field(description="Population count")
-    landmarks: List[str] = Field(description="Famous landmarks")
+class CodeAnalysis(BaseModel):
+    language: str = Field(description="Programming language")
+    functions: List[str] = Field(description="Function names")
+    complexity: str = Field(description="Code complexity level")
+    suggestions: List[str] = Field(description="Improvement suggestions")
 
-# Request structured output
-city_info = await client.complete(
-    messages=[
-        Message(MessageRole.USER, "Tell me about Paris")
-    ],
-    response_model=CityInfo  # Auto-detects and uses Instructor
-)
-
-print(f"City: {city_info.name}")
-print(f"Population: {city_info.population:,}")
-print(f"Landmarks: {', '.join(city_info.landmarks)}")
+async def analyze_code():
+    manager = LLMManager()
+    client = manager.get_client(LLMProvider.ANTHROPIC)
+    
+    code = "def hello(): print('Hello, World!')"
+    
+    messages = [
+        Message(
+            role=MessageRole.USER,
+            content=f"Analyze this code: {code}"
+        )
+    ]
+    
+    # Get structured response
+    analysis = await client.complete(
+        messages=messages,
+        response_model=CodeAnalysis
+    )
+    
+    print(f"Language: {analysis.language}")
+    print(f"Functions: {analysis.functions}")
 ```
 
-### Connection Pooling
+## Streaming Example
 
 ```python
-# Configure multiple API keys for load balancing
-import os
-
-# Set multiple keys (comma-separated)
-os.environ['ANTHROPIC_API_KEYS'] = 'key1,key2,key3'
-
-# The pool automatically rotates between keys
-manager = await get_llm_manager()
-client = manager.get_client(LLMProvider.ANTHROPIC)
-
-# Make many requests - automatically distributed
-for i in range(100):
-    response = await client.complete(messages)
+async def stream_story():
+    manager = LLMManager()
+    client = manager.get_client(LLMProvider.ANTHROPIC)
+    
+    messages = [
+        Message(
+            role=MessageRole.USER,
+            content="Write a short story about AI"
+        )
+    ]
+    
+    # Stream response token by token
+    async for chunk in client.stream(messages=messages):
+        if chunk.content:
+            print(chunk.content, end="", flush=True)
 ```
 
-### Error Handling
-
-```python
-from src.llm.core.exceptions import (
-    LLMError,
-    RateLimitError,
-    InvalidRequestError
-)
-
-try:
-    response = await client.complete(messages)
-except RateLimitError as e:
-    print(f"Rate limited: {e}. Retry after: {e.retry_after}")
-except InvalidRequestError as e:
-    print(f"Invalid request: {e}")
-except LLMError as e:
-    print(f"General LLM error: {e}")
-```
-
-### Advanced Configuration
+## Configuration
 
 ```python
 from src.llm import LLMConfig
 
 config = LLMConfig(
-    temperature=0.7,
-    max_tokens=2000,
-    max_retries=3,
-    retry_delay=1.0,
-    timeout=30.0,
-    system_prompt="You are a technical assistant"
+    # Retry settings
+    retry_max_attempts=3,
+    retry_initial_delay=1.0,
+    retry_max_delay=10.0,
+    
+    # Rate limiting
+    rate_limit_requests_per_minute=60,
+    
+    # Connection pool
+    pool_size=10,
+    pool_timeout=30.0,
+    
+    # Logging and metrics
+    enable_logging=True,
+    enable_metrics=True,
+    
+    # Token limits
+    max_tokens_per_request=4000,
+    max_tokens_per_minute=100000
 )
 
-response = await client.complete(
-    messages,
-    **config.to_dict()
-)
+manager = LLMManager(config=config)
 ```
 
-## Provider-Specific Features
+## Middleware
 
-### Anthropic
-- Claude 3 models (Opus, Sonnet, Haiku)
-- 200k context window
-- System prompts support
-- Vision capabilities
+The module includes several middleware components:
 
-### OpenAI
-- GPT-4 and GPT-3.5 models
-- Function calling
-- JSON mode
-- Vision capabilities
-
-### Configuration
-
-Set API keys via environment variables:
-
-```bash
-# Single key
-export ANTHROPIC_API_KEY="your-key"
-
-# Multiple keys for pooling
-export ANTHROPIC_API_KEYS="key1,key2,key3"
-
-# Other providers
-export OPENAI_API_KEY="your-key"
-export GOOGLE_API_KEY="your-key"
-export GROQ_API_KEY="your-key"
-```
-
-## Instructor Integration
-
-The module automatically detects when a `response_model` is provided and uses Instructor for structured outputs:
-
-### How It Works
-
-1. **Auto-Detection**: When `response_model` parameter is present, Instructor is activated
-2. **Type Safety**: Responses are validated against your Pydantic models
-3. **Retry Logic**: Automatic retries on validation failures
-4. **Error Handling**: Clear error messages for schema mismatches
-
-### Example: Complex Extraction
-
+### Retry Middleware
+Automatically retries failed requests with exponential backoff:
 ```python
-from pydantic import BaseModel
-from typing import List, Optional
-
-class CodeFunction(BaseModel):
-    name: str
-    parameters: List[str]
-    return_type: Optional[str]
-    docstring: Optional[str]
-
-class CodeAnalysis(BaseModel):
-    language: str
-    functions: List[CodeFunction]
-    imports: List[str]
-    complexity: int = Field(ge=1, le=10)
-
-# Analyze code with structured output
-analysis = await client.complete(
-    messages=[
-        Message(MessageRole.USER, f"Analyze this code:\n{code_snippet}")
-    ],
-    response_model=CodeAnalysis
+config = LLMConfig(
+    retry_max_attempts=3,
+    retry_initial_delay=1.0,
+    retry_exponential_base=2.0
 )
-
-# Type-safe access to results
-for func in analysis.functions:
-    print(f"Function: {func.name}({', '.join(func.parameters)})")
 ```
 
-## Connection Pool Details
-
-### Load Balancing Strategy
-- **Round-Robin**: Distributes requests evenly across connections
-- **Health Tracking**: Marks connections as unhealthy on errors
-- **Automatic Recovery**: Retries unhealthy connections after cooldown
-
-### Pool Configuration
+### Rate Limiter
+Prevents API throttling:
 ```python
-# Default pool configuration
-pool = ConnectionPool(
-    api_keys=['key1', 'key2'],
-    max_connections_per_key=5,  # Concurrent requests per key
-    health_check_interval=60,    # Seconds between health checks
+config = LLMConfig(
+    rate_limit_requests_per_minute=60,
+    rate_limit_tokens_per_minute=100000
 )
+```
+
+### Metrics Collector
+Track usage and performance:
+```python
+manager = LLMManager(config=LLMConfig(enable_metrics=True))
+
+# Get metrics
+metrics = manager.get_metrics()
+print(f"Total requests: {metrics['total_requests']}")
+print(f"Average latency: {metrics['average_latency_ms']}ms")
 ```
 
 ## Error Handling
 
-### Retry Strategy
-- Exponential backoff with jitter
-- Configurable max retries (default: 3)
-- Different strategies for different error types:
-  - Rate limits: Respect retry-after headers
-  - Network errors: Immediate retry with backoff
-  - Invalid requests: No retry
+```python
+from src.llm import LLMException, RateLimitError, AuthenticationError
 
-### Error Types
-- `LLMError`: Base exception for all LLM errors
-- `RateLimitError`: Rate limit exceeded
-- `InvalidRequestError`: Malformed request
-- `AuthenticationError`: Invalid API key
-- `NetworkError`: Connection issues
+try:
+    response = await client.complete(messages=messages)
+except RateLimitError as e:
+    print(f"Rate limited: {e}")
+    # Wait and retry
+except AuthenticationError as e:
+    print(f"Auth failed: {e}")
+    # Check API keys
+except LLMException as e:
+    print(f"LLM error: {e}")
+    # Handle general errors
+```
+
+## Environment Variables
+
+Set your API keys:
+```bash
+export ANTHROPIC_API_KEY="your-anthropic-key"
+export OPENAI_API_KEY="your-openai-key"
+```
+
+## Advanced Usage
+
+### Multi-turn Conversations
+```python
+messages = []
+
+# System message
+messages.append(Message(
+    role=MessageRole.SYSTEM,
+    content="You are a helpful assistant"
+))
+
+# Conversation loop
+for user_input in ["Hello", "What's Python?", "Show example"]:
+    messages.append(Message(role=MessageRole.USER, content=user_input))
+    
+    response = await client.complete(messages=messages)
+    print(f"Assistant: {response.content}")
+    
+    messages.append(Message(
+        role=MessageRole.ASSISTANT,
+        content=response.content
+    ))
+```
+
+### Provider Fallback
+```python
+async def with_fallback():
+    manager = LLMManager()
+    
+    providers = [LLMProvider.ANTHROPIC, LLMProvider.OPENAI]
+    
+    for provider in providers:
+        try:
+            client = manager.get_client(provider)
+            response = await client.complete(messages=messages)
+            return response
+        except LLMException:
+            continue
+    
+    raise Exception("All providers failed")
+```
+
+## Module Structure
+
+```
+src/llm/
+├── __init__.py           # Main exports
+├── core/
+│   ├── client.py         # Base client implementation
+│   ├── config.py         # Configuration classes
+│   ├── exceptions.py     # Custom exceptions
+│   ├── manager.py        # LLM manager
+│   ├── pool.py          # Connection pooling
+│   └── types.py         # Type definitions
+├── middleware/
+│   ├── base.py          # Middleware base class
+│   ├── logging.py       # Logging middleware
+│   ├── metrics.py       # Metrics collection
+│   ├── rate_limiter.py  # Rate limiting
+│   ├── retry.py         # Retry logic
+│   └── token_calculator.py # Token counting
+└── providers/
+    ├── anthropic.py     # Anthropic Claude provider
+    ├── base.py          # Provider base class
+    └── openai.py        # OpenAI GPT provider
+```
 
 ## Performance Tips
 
-1. **Use Connection Pooling**: Distribute load across multiple API keys
-2. **Enable Caching**: Cache frequently used completions
-3. **Batch Requests**: Group related requests when possible
-4. **Set Appropriate Timeouts**: Avoid hanging on slow requests
-5. **Use Structured Outputs**: More efficient than parsing text
-
-## Testing
-
-```python
-# Test with mock client
-from src.llm.testing import MockLLMClient
-
-mock_client = MockLLMClient(
-    responses=["Response 1", "Response 2"]
-)
-
-response = await mock_client.complete(messages)
-assert response.content == "Response 1"
-```
-
-## Best Practices
-
-1. **Always Use Type Hints**: Enables better IDE support and validation
-2. **Handle Errors Gracefully**: Implement proper error handling
-3. **Monitor Usage**: Track token usage and costs
-4. **Use Structured Outputs**: When you need specific data formats
-5. **Set Temperature Appropriately**: Lower for factual, higher for creative
-
-## Future Enhancements
-
-- [ ] Streaming support for long responses
-- [ ] Token usage tracking and cost estimation
-- [ ] Response caching with Redis backend
-- [ ] Prompt template management
-- [ ] Fine-tuning integration
-- [ ] Multi-modal support (images, audio)
+1. **Use Connection Pooling**: For high-throughput applications
+2. **Enable Caching**: Cache frequent requests
+3. **Batch Requests**: Process multiple items together
+4. **Stream Long Responses**: For better UX
+5. **Monitor Metrics**: Track performance and costs
 
 ## License
 
-See main project LICENSE file.
+MIT License - See LICENSE file for details

@@ -1,0 +1,137 @@
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
+
+graph TB
+    %% DataMiner Module - Cognitive Extraction Process
+    
+    subgraph InputLayer["📥 Input Layer"]
+        RawContent[/"Raw Content<br/>• Text<br/>• Documents<br/>• Code<br/>• Repository"/]
+        Schema[/"Target Schema<br/>Pydantic Model"/]
+        Config[/"Configuration<br/>• Mode<br/>• Thresholds<br/>• Settings"/]
+    end
+    
+    subgraph CognitivePipeline["🧠 Cognitive Processing Pipeline"]
+        
+        subgraph Discovery["🔍 Discovery Phase<br/>Understanding & Analysis"]
+            ContentAnalysis["Content Analysis<br/>• Type Detection<br/>• Structure Recognition<br/>• Pattern Identification"]
+            SchemaUnderstanding["Schema Understanding<br/>• Field Requirements<br/>• Relationships<br/>• Constraints"]
+            StrategySelection["Strategy Selection<br/>• Simple ⚡<br/>• Multi-stage 🔄<br/>• Cognitive 🧠<br/>• Reflective 🔁"]
+        end
+        
+        subgraph Extraction["⛏️ Extraction Phase<br/>Multi-Strategy Processing"]
+            
+            subgraph SimpleStrategy["⚡ Simple Strategy"]
+                SinglePass["Single Pass<br/>• Fast Processing<br/>• Direct Mapping<br/>• Basic Validation"]
+            end
+            
+            subgraph MultiStage["🔄 Multi-Stage Strategy"]
+                Stage1["Stage 1: Initial<br/>• Rough Extraction<br/>• Identify Sections"]
+                Stage2["Stage 2: Refinement<br/>• Detailed Extraction<br/>• Fill Gaps"]
+                Stage3["Stage 3: Validation<br/>• Schema Compliance<br/>• Quality Check"]
+                
+                Stage1 --> Stage2
+                Stage2 --> Stage3
+            end
+            
+            subgraph CognitiveStrategy["🧠 Cognitive Strategy"]
+                Understanding["Understanding<br/>• Context Analysis<br/>• Intent Recognition"]
+                Planning["Planning<br/>• Extraction Strategy<br/>• Resource Allocation"]
+                Execution["Execution<br/>• Guided Extraction<br/>• Reasoning"]
+                
+                Understanding --> Planning
+                Planning --> Execution
+            end
+            
+            subgraph ReflectiveStrategy["🔁 Reflective Strategy"]
+                InitialAttempt["Initial Attempt"]
+                QualityAssess["Quality Assessment<br/>• Confidence Score<br/>• Gap Analysis"]
+                Improvement["Improvement<br/>• Targeted Refinement<br/>• Iterative Enhancement"]
+                
+                InitialAttempt --> QualityAssess
+                QualityAssess --> Improvement
+                Improvement -.->|Iterate| InitialAttempt
+            end
+        end
+        
+        subgraph Synthesis["🔮 Synthesis Phase<br/>Integration & Consolidation"]
+            ResultMerger["Result Merger<br/>• Combine Extractions<br/>• Resolve Conflicts<br/>• Optimize Structure"]
+            GapFiller["Gap Filler<br/>• Identify Missing<br/>• Infer from Context<br/>• Apply Defaults"]
+            Enrichment["Data Enrichment<br/>• Add Metadata<br/>• Cross-references<br/>• Relationships"]
+        end
+        
+        subgraph Validation["✅ Validation Phase"]
+            SchemaValidation["Schema Validation<br/>• Type Checking<br/>• Constraint Validation<br/>• Required Fields"]
+            QualityControl["Quality Control<br/>• Completeness Check<br/>• Consistency Check<br/>• Accuracy Assessment"]
+            ConfidenceScoring["Confidence Scoring<br/>• Field Confidence<br/>• Overall Confidence<br/>• Quality Metrics"]
+        end
+    end
+    
+    subgraph Intelligence["🎓 Intelligence Layer"]
+        
+        subgraph LearningSystem["📚 Learning System"]
+            PatternMemory["Pattern Memory<br/>• Successful Patterns<br/>• Failed Patterns<br/>• Optimizations"]
+            SchemaKnowledge["Schema Knowledge<br/>• Common Structures<br/>• Best Practices<br/>• Domain Specifics"]
+        end
+        
+        subgraph AdaptiveControl["🎛️ Adaptive Control"]
+            StrategyOptimizer["Strategy Optimizer<br/>• Performance Metrics<br/>• Success Rates<br/>• Auto-tuning"]
+            ThresholdAdjuster["Threshold Adjuster<br/>• Confidence Levels<br/>• Quality Standards<br/>• Processing Limits"]
+        end
+    end
+    
+    subgraph OutputLayer["📤 Output Layer"]
+        ExtractedData["Extracted Data<br/>Type-safe Object"]
+        Confidence["Confidence Metrics<br/>• Overall: 0.95<br/>• Per Field<br/>• By Strategy"]
+        GapAnalysis["Gap Analysis<br/>• Missing Fields<br/>• Low Confidence<br/>• Recommendations"]
+        Metadata["Metadata<br/>• Sources<br/>• Strategies Used<br/>• Processing Time"]
+    end
+    
+    %% Flow Connections
+    RawContent --> Discovery
+    Schema --> Discovery
+    Config --> Discovery
+    
+    Discovery --> ContentAnalysis
+    ContentAnalysis --> SchemaUnderstanding
+    SchemaUnderstanding --> StrategySelection
+    
+    StrategySelection -->|Fast| SimpleStrategy
+    StrategySelection -->|Thorough| MultiStage
+    StrategySelection -->|Complex| CognitiveStrategy
+    StrategySelection -->|Iterative| ReflectiveStrategy
+    
+    SimpleStrategy --> Synthesis
+    MultiStage --> Synthesis
+    CognitiveStrategy --> Synthesis
+    ReflectiveStrategy --> Synthesis
+    
+    Synthesis --> ResultMerger
+    ResultMerger --> GapFiller
+    GapFiller --> Enrichment
+    
+    Enrichment --> Validation
+    Validation --> SchemaValidation
+    SchemaValidation --> QualityControl
+    QualityControl --> ConfidenceScoring
+    
+    ConfidenceScoring --> ExtractedData
+    ConfidenceScoring --> Confidence
+    QualityControl --> GapAnalysis
+    Enrichment --> Metadata
+    
+    %% Learning Feedback
+    ConfidenceScoring -.->|Feedback| PatternMemory
+    GapAnalysis -.->|Learn| SchemaKnowledge
+    
+    PatternMemory --> StrategyOptimizer
+    SchemaKnowledge --> ThresholdAdjuster
+    
+    StrategyOptimizer -.->|Optimize| StrategySelection
+    ThresholdAdjuster -.->|Adjust| QualityControl
+    
+    style InputLayer fill:#1e293b,stroke:#3b82f6,stroke-width:2px
+    style Discovery fill:#2d1b47,stroke:#8b5cf6,stroke-width:2px
+    style Extraction fill:#1e3a5f,stroke:#10b981,stroke-width:2px
+    style Synthesis fill:#312e4f,stroke:#f59e0b,stroke-width:2px
+    style Validation fill:#1e453f,stroke:#ef4444,stroke-width:2px
+    style Intelligence fill:#3f2e1e,stroke:#ec4899,stroke-width:2px
+    style OutputLayer fill:#1e293b,stroke:#06b6d4,stroke-width:2px

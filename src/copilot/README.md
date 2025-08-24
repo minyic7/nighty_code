@@ -1,249 +1,451 @@
 # Copilot Module
 
-An intelligent AI assistant module built with LangGraph, featuring multi-hypothesis thinking, confidence tracking, and seamless tool integration through MCP (Model Context Protocol).
+An intelligent workflow orchestration system with cognitive reasoning, memory management, and tool integration for building sophisticated AI assistants.
 
 ## Features
 
-### Core Capabilities
-- **Structured LLM Outputs**: Leverages Instructor for type-safe, validated responses
-- **Multi-Hypothesis Thinking**: Generates 3-5 interpretations for each user request
-- **Dual-Speed Processing**: Fast path for simple queries, slow path for complex reasoning
-- **Confidence Tracking**: Three-tier confidence system guides decision-making
-- **Memory Management**: Smart short-term and long-term memory with importance-based preservation
-- **Tool Integration**: Seamless MCP tool execution with intelligent routing
-- **Guardrails**: Built-in safety checks and validation
+### 🧠 Cognitive Capabilities
+- **Reasoning Nodes**: Multi-step logical reasoning
+- **Planning & Reflection**: Strategic task planning
+- **Problem Decomposition**: Break complex problems into manageable steps
+- **Alternative Solutions**: Generate and evaluate multiple approaches
 
-### Key Components
+### 💬 Interactive Sessions
+- **Conversational AI**: Natural dialogue management
+- **Context Preservation**: Maintain conversation history
+- **Multi-turn Interactions**: Complex back-and-forth discussions
+- **Session Management**: Handle multiple concurrent sessions
 
-#### 1. Cognitive Nodes (`nodes/cognitive.py`)
-Handles the thinking process with **structured outputs via Instructor**:
-- **Understanding**: Analyzes user intent with multiple hypotheses (uses `MultiHypothesisOutput`)
-- **Planning**: Creates actionable plans based on understanding (uses `PlanningOutput`)
-- **Reasoning**: Decides on next steps and adjusts plans (uses `ReasoningOutput`)
-- **Reflection**: Learns from failures and improves responses (uses `ReflectionOutput`)
+### 🔧 Tool Integration
+- **Intelligent Routing**: Automatically select appropriate tools
+- **Tool Discovery**: Dynamic tool registration and discovery
+- **Parameter Extraction**: Smart parameter inference from queries
+- **Result Processing**: Transform tool outputs for users
 
-#### 2. Workflow Orchestration (`core/workflow.py`)
-LangGraph-based workflow with:
-- State management across conversation turns
-- Intelligent routing between cognitive nodes
-- Session persistence with checkpointing
-- Configurable recursion limits
+### 🛡️ Safety & Guardrails
+- **Content Filtering**: Block inappropriate content
+- **PII Detection**: Identify and protect sensitive information
+- **Code Safety**: Validate code before execution
+- **Prompt Injection Detection**: Prevent manipulation attempts
 
-#### 3. Tool Router (`tools/router.py`)
-MCP-based tool execution with **Instructor-powered selection**:
-- Dynamic tool discovery from MCP servers
-- LLM-guided tool selection (uses `ToolSelectionOutput` and `ToolExecutionPlan`)
-- Argument normalization and validation
-- Error handling with graceful degradation
+### 📝 Memory Management
+- **Short-term Memory**: Recent interaction storage
+- **Long-term Memory**: Persistent knowledge base
+- **Semantic Search**: Find relevant memories by meaning
+- **Memory Consolidation**: Automatic importance-based storage
 
-#### 4. Memory Manager (`memory/manager.py`)
-Sophisticated memory system:
-- Importance-based memory preservation
-- Automatic migration to long-term storage
-- Duplicate prevention
-- Bounded history with smart truncation
+## Installation
 
-## Architecture
-
-```
-User Input
-    ↓
-[Entry Node]
-    ↓
-[Understanding] ← Multi-hypothesis generation
-    ↓
-[Planning] ← Create action plans
-    ↓
-[Reasoning] ← Decision making
-    ↓
-[Tool Execution] ← MCP tools
-    ↓
-[Response Generation]
-    ↓
-User Output
+```bash
+# Install required dependencies
+pip install asyncio pydantic typing-extensions numpy
 ```
 
-## Usage
-
-### Basic Usage
+## Quick Start
 
 ```python
-from src.copilot import CopilotWorkflow
+import asyncio
+from src.copilot import CopilotClient, InteractiveSession
 
-# Initialize workflow
-workflow = CopilotWorkflow()
+async def main():
+    # Initialize Copilot client
+    client = CopilotClient()
+    await client.initialize()
+    
+    # Create interactive session
+    session = InteractiveSession(
+        session_id="demo",
+        enable_memory=True,
+        enable_tools=True
+    )
+    
+    # Have a conversation
+    response = await session.chat("Hello! Can you help me with Python?")
+    print(f"Copilot: {response.content}")
+    
+    response = await session.chat("Show me how to read a file")
+    print(f"Copilot: {response.content}")
+    
+    await client.cleanup()
+
+asyncio.run(main())
+```
+
+## Workflow Automation
+
+Create complex multi-step workflows:
+
+```python
+from src.copilot import CopilotWorkflow, WorkflowConfig
+
+# Configure workflow
+config = WorkflowConfig(
+    name="data_analysis_workflow",
+    description="Analyze and report on data",
+    enable_cognitive_reasoning=True,
+    enable_memory=True,
+    enable_tools=True,
+    max_iterations=5
+)
+
+workflow = CopilotWorkflow(config)
 await workflow.initialize()
 
-# Process a message
-response = await workflow.process_message(
-    "Help me find Python files", 
-    session_id="user-123"
+# Define workflow steps
+steps = [
+    {
+        "name": "load_data",
+        "description": "Load data from source",
+        "input": "Load sales data from database"
+    },
+    {
+        "name": "clean_data",
+        "description": "Clean and preprocess data",
+        "depends_on": ["load_data"]
+    },
+    {
+        "name": "analyze",
+        "description": "Perform statistical analysis",
+        "depends_on": ["clean_data"]
+    },
+    {
+        "name": "visualize",
+        "description": "Create visualizations",
+        "depends_on": ["analyze"]
+    },
+    {
+        "name": "report",
+        "description": "Generate final report",
+        "depends_on": ["visualize"]
+    }
+]
+
+# Execute workflow
+result = await workflow.execute(steps)
+print(f"Workflow completed in {result.execution_time_ms}ms")
+```
+
+## Cognitive Reasoning
+
+Leverage advanced reasoning capabilities:
+
+```python
+from src.copilot import CognitiveNode
+
+# Create cognitive node
+cognitive = CognitiveNode(
+    name="problem_solver",
+    enable_reflection=True,
+    enable_planning=True
 )
 
-print(f"Response: {response.content}")
-print(f"Confidence: {response.confidence}")
+await cognitive.initialize()
+
+# Complex problem
+problem = """
+Design a scalable microservices architecture for an e-commerce platform
+that handles 1M daily users, supports multiple payment methods, and
+provides real-time inventory tracking.
+"""
+
+# Get cognitive analysis
+result = await cognitive.reason(problem)
+
+print("Solution:", result.solution)
+print("\nReasoning Steps:")
+for step in result.reasoning_steps:
+    print(f"- {step}")
+
+print(f"\nConfidence: {result.confidence:.2f}")
+print(f"Alternatives: {len(result.alternatives)}")
 ```
-
-### Configuration
-
-```python
-from src.copilot import CopilotConfig, CopilotWorkflow
-
-config = CopilotConfig(
-    llm_provider="anthropic",
-    temperature=0.7,
-    enable_memory=True,
-    enable_guardrails=True,
-    memory_persistence=False,
-    auto_execute_tools=True
-)
-
-workflow = CopilotWorkflow(config=config)
-```
-
-### Interactive REPL
-
-```python
-from src.copilot.client import InteractiveCopilot
-
-# Start interactive session
-copilot = InteractiveCopilot()
-await copilot.start()
-```
-
-## Instructor Integration
-
-The copilot module extensively uses **Instructor** for structured, type-safe LLM outputs:
-
-### Structured Output Models
-
-```python
-# Multi-hypothesis generation
-class MultiHypothesisOutput(BaseModel):
-    hypotheses: List[Hypothesis]  # 3-5 different interpretations
-    primary_intent: str
-    confidence: float
-    
-# Planning output
-class PlanningOutput(BaseModel):
-    goal: str
-    steps: List[str]
-    tool_requirements: List[str]
-    estimated_complexity: float
-    
-# Tool selection
-class ToolSelectionOutput(BaseModel):
-    tool_name: str
-    server_name: str
-    arguments: Dict[str, Any]
-    reasoning: str
-```
-
-### Benefits
-- **Type Safety**: All LLM responses are validated against Pydantic models
-- **Consistency**: Structured outputs ensure consistent response formats
-- **Error Handling**: Automatic validation and retry on schema mismatches
-- **Better Reasoning**: Forces LLM to structure its thinking process
-
-## Confidence System
-
-The module uses a three-tier confidence system:
-
-| Confidence | Action |
-|------------|--------|
-| < 50% | Request clarification |
-| 50-70% | Offer alternatives |
-| > 70% | Proceed with action |
 
 ## Memory Management
 
-### Short-term Memory
-- Limited to configurable size (default: 100 items)
-- Stores recent interactions and facts
-- Automatically migrates important items to long-term
+Store and retrieve contextual information:
 
-### Long-term Memory
-- Preserves important memories (importance > 0.7)
-- No duplicates allowed
-- Persistent across sessions (when enabled)
+```python
+from src.copilot import MemoryManager
 
-## Bug Fixes Applied
+memory = MemoryManager(
+    max_short_term=100,
+    max_long_term=1000,
+    enable_embeddings=True
+)
 
-Recent critical fixes (all verified with tests):
+await memory.initialize()
 
-1. **Memory Management**: Fixed bug where only first 10 items were checked for importance
-2. **History Limits**: Added MAX_HISTORY_SIZE to prevent unbounded growth
-3. **Input Validation**: Added smart truncation preserving start, middle, and end
-4. **Tool Failure Handling**: Plans now stop on critical tool failures
-5. **Fast Path Detection**: Fixed whitespace handling in pattern matching
-6. **Hypothesis Updates**: Test results now properly update hypothesis list
+# Store information
+await memory.store("user_name", "Alice", importance=0.9)
+await memory.store("project", "E-commerce platform", importance=0.8)
+await memory.store("preference", "Prefers Python", importance=0.7)
 
-## Testing
+# Retrieve specific memory
+name = await memory.retrieve("user_name")
+print(f"User: {name}")
 
-### Run Tests
-
-```bash
-# Unit tests
-python test_copilot_integration.py
-
-# Pressure tests
-python test_copilot_final.py
-
-# Memory tests
-python test_memory_simple.py
+# Semantic search
+results = await memory.search("What programming language?", top_k=3)
+for result in results:
+    print(f"{result.key}: {result.value} (relevance: {result.relevance:.2f})")
 ```
 
-### Test Coverage
+## Tool Integration
 
-- ✅ Memory management with overflow
-- ✅ History size limits
-- ✅ Input validation (empty, whitespace, long messages)
-- ✅ Multi-turn conversations
-- ✅ Tool execution and failure handling
-- ✅ Edge cases (unicode, special characters)
-- ✅ Confidence scoring and routing
+Register and use custom tools:
 
-## Performance
+```python
+from src.copilot import ToolRouter
 
-- Handles 100+ message conversations
-- Memory-efficient with bounded data structures
-- Graceful degradation under load
-- Smart truncation for long inputs
-- Parallel tool execution support
+router = ToolRouter()
+await router.initialize()
 
-## Dependencies
+# Register tools
+tools = [
+    {
+        "name": "calculator",
+        "description": "Perform calculations",
+        "parameters": ["expression"]
+    },
+    {
+        "name": "web_search",
+        "description": "Search the web",
+        "parameters": ["query", "max_results"]
+    },
+    {
+        "name": "code_executor",
+        "description": "Execute Python code",
+        "parameters": ["code"]
+    }
+]
 
-- `langgraph`: Workflow orchestration
-- `pydantic`: Data validation and structured outputs
-- `instructor`: Type-safe LLM responses
-- `src.llm`: LLM client management (with Instructor integration)
-- `src.mcp`: Tool protocol implementation
+for tool in tools:
+    await router.register_tool(tool)
 
-## Production Readiness
+# Intelligent routing
+query = "Calculate the square root of 144"
+tool_selection = await router.route(query)
 
-✅ **Production Ready** - All critical bugs fixed and tested
+print(f"Selected tool: {tool_selection.tool_name}")
+print(f"Parameters: {tool_selection.parameters}")
 
-### Monitoring Recommendations
-- Track memory usage and history sizes
-- Monitor response times and confidence scores
-- Log tool execution failures
-- Watch for recursion limit hits
+# Execute tool
+result = await router.execute_tool(tool_selection)
+print(f"Result: {result}")
+```
 
-### Scaling Considerations
-- Add rate limiting for high-traffic scenarios
-- Implement caching for repeated queries
-- Consider distributed memory storage
-- Add health check endpoints
+## Guardrails & Safety
 
-## Future Improvements
+Implement safety checks:
 
-- [ ] Parallel tool execution optimization
-- [ ] Advanced caching layer
-- [ ] Distributed memory backend
-- [ ] Enhanced hypothesis testing
-- [ ] Real-time learning from interactions
-- [ ] Custom tool development SDK
+```python
+from src.copilot import GuardrailsChecker
+
+guardrails = GuardrailsChecker(
+    enable_content_filter=True,
+    enable_pii_detection=True,
+    enable_code_safety=True,
+    enable_prompt_injection_detection=True
+)
+
+await guardrails.initialize()
+
+# Check content safety
+content = "Process this credit card: 4111-1111-1111-1111"
+result = await guardrails.check(content)
+
+print(f"Safety Status: {result.status}")
+print(f"Risk Level: {result.risk_level}")
+
+if result.issues:
+    for issue in result.issues:
+        print(f"Issue: {issue.type} - {issue.description}")
+```
+
+## Multi-Agent Collaboration
+
+Create specialized agents that work together:
+
+```python
+# Create specialized agents
+agents = {
+    "researcher": CopilotWorkflow(WorkflowConfig(
+        name="researcher",
+        description="Research and gather information"
+    )),
+    "analyzer": CopilotWorkflow(WorkflowConfig(
+        name="analyzer",
+        description="Analyze data"
+    )),
+    "writer": CopilotWorkflow(WorkflowConfig(
+        name="writer",
+        description="Generate reports"
+    ))
+}
+
+# Initialize agents
+for agent in agents.values():
+    await agent.initialize()
+
+# Collaborative task
+task = "Research market trends, analyze competition, write report"
+
+# Execute in sequence
+research_data = await agents["researcher"].execute([{
+    "name": "research",
+    "input": "Research current market trends"
+}])
+
+analysis = await agents["analyzer"].execute([{
+    "name": "analyze",
+    "input": research_data.final_output
+}])
+
+report = await agents["writer"].execute([{
+    "name": "write",
+    "input": analysis.final_output
+}])
+
+print("Final Report:", report.final_output)
+```
+
+## Configuration Options
+
+```python
+from src.copilot import CopilotConfig
+
+config = CopilotConfig(
+    # Session settings
+    max_session_duration=3600,  # 1 hour
+    session_timeout=300,  # 5 minutes idle
+    
+    # Memory settings
+    memory_enabled=True,
+    memory_max_size=1000,
+    memory_consolidation_interval=60,
+    
+    # Tool settings
+    tool_timeout=30,
+    tool_max_retries=3,
+    
+    # Safety settings
+    enable_guardrails=True,
+    guardrail_strictness="medium",
+    
+    # Cognitive settings
+    reasoning_depth=3,
+    max_alternatives=5,
+    confidence_threshold=0.7
+)
+
+client = CopilotClient(config=config)
+```
+
+## Advanced Features
+
+### Custom Cognitive Strategies
+
+```python
+class CustomStrategy(CognitiveStrategy):
+    async def reason(self, input_data):
+        # Custom reasoning logic
+        steps = []
+        
+        # Step 1: Understand
+        understanding = await self.understand(input_data)
+        steps.append(understanding)
+        
+        # Step 2: Plan
+        plan = await self.plan(understanding)
+        steps.append(plan)
+        
+        # Step 3: Execute
+        result = await self.execute(plan)
+        steps.append(result)
+        
+        return CognitiveResult(
+            solution=result,
+            reasoning_steps=steps,
+            confidence=0.85
+        )
+```
+
+### Session Persistence
+
+```python
+# Save session state
+state = await session.get_state()
+await session.save_to_file("session_backup.json")
+
+# Restore session
+new_session = InteractiveSession.from_file("session_backup.json")
+await new_session.restore_state(state)
+```
+
+### Debugging Assistant
+
+```python
+from src.copilot import DebuggingAssistant
+
+debugger = DebuggingAssistant()
+await debugger.initialize()
+
+buggy_code = """
+def divide(a, b):
+    return a / b
+
+result = divide(10, 0)
+"""
+
+# Analyze for bugs
+analysis = await debugger.analyze_code(buggy_code)
+print(f"Bugs found: {len(analysis.bugs)}")
+
+for bug in analysis.bugs:
+    print(f"- {bug.type}: {bug.description}")
+    print(f"  Fix: {bug.suggested_fix}")
+
+# Get fixed code
+fixed_code = await debugger.fix_code(buggy_code)
+print("Fixed code:", fixed_code)
+```
+
+## Module Structure
+
+```
+src/copilot/
+├── __init__.py           # Main exports
+├── client/
+│   └── interactive.py    # Interactive session management
+├── core/
+│   ├── types.py         # Type definitions
+│   └── workflow.py      # Workflow orchestration
+├── guardrails/
+│   └── checker.py       # Safety checks
+├── memory/
+│   └── manager.py       # Memory management
+├── nodes/
+│   └── cognitive.py     # Cognitive reasoning
+└── tools/
+    └── router.py        # Tool routing
+```
+
+## Best Practices
+
+1. **Session Management**: Always clean up sessions after use
+2. **Memory Limits**: Set appropriate memory limits for your use case
+3. **Tool Timeouts**: Configure reasonable timeouts for tools
+4. **Guardrail Levels**: Adjust strictness based on application needs
+5. **Workflow Design**: Keep workflows modular and reusable
+
+## Performance Tips
+
+- Use memory caching for frequently accessed data
+- Enable parallel step execution in workflows
+- Batch similar operations together
+- Monitor cognitive reasoning depth
+- Profile memory usage regularly
 
 ## License
 
-See main project LICENSE file.
+MIT License - See LICENSE file for details

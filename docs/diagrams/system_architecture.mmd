@@ -1,0 +1,148 @@
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
+
+graph TB
+    %% Nighty Code - Complete System Architecture
+    
+    subgraph UserLayer["👤 User Layer"]
+        Developer[/"Developer<br/>Python Application"/]
+        API[/"API Client<br/>REST/GraphQL"/]
+        CLI[/"CLI Tool<br/>Command Line"/]
+    end
+    
+    subgraph ApplicationLayer["🏗️ Application Layer"]
+        
+        subgraph Orchestration["🎭 Orchestration"]
+            AppController["Application Controller<br/>• Request Routing<br/>• Session Management<br/>• Error Handling"]
+            ConfigManager["Configuration Manager<br/>• Environment Variables<br/>• Settings Files<br/>• Dynamic Config"]
+        end
+        
+        subgraph Integration["🔗 Integration Points"]
+            ModuleRouter["Module Router<br/>• Dynamic Selection<br/>• Load Balancing<br/>• Fallback Logic"]
+            EventBus["Event Bus<br/>• Inter-module Communication<br/>• Event Streaming<br/>• Notifications"]
+        end
+    end
+    
+    subgraph CoreModules["🧩 Core Modules"]
+        
+        subgraph LLM["🤖 LLM Module"]
+            LLMManager["Manager<br/>+ Providers<br/>+ Middleware<br/>+ Pool"]
+        end
+        
+        subgraph MCP["🔧 MCP Module"]
+            MCPManager["Manager<br/>+ Servers<br/>+ Tools<br/>+ Resources"]
+        end
+        
+        subgraph Copilot["🧠 Copilot Module"]
+            CopilotCore["Cognitive Engine<br/>+ Memory<br/>+ Reasoning<br/>+ Workflows"]
+        end
+        
+        subgraph DataMiner["⛏️ DataMiner Module"]
+            DataMinerCore["Extraction Engine<br/>+ Strategies<br/>+ Validation<br/>+ Intelligence"]
+        end
+    end
+    
+    subgraph SharedServices["🛠️ Shared Services"]
+        
+        subgraph DataServices["💾 Data Services"]
+            Cache["Cache Layer<br/>• Redis/Memory<br/>• TTL Management<br/>• Invalidation"]
+            Storage["Storage Layer<br/>• File System<br/>• Database<br/>• Object Store"]
+        end
+        
+        subgraph SecurityServices["🔐 Security Services"]
+            Auth["Authentication<br/>• API Keys<br/>• OAuth<br/>• JWT"]
+            RateLimit["Rate Limiting<br/>• Per User<br/>• Per API<br/>• Global"]
+            Encryption["Encryption<br/>• Data at Rest<br/>• Data in Transit<br/>• Key Management"]
+        end
+        
+        subgraph ObservabilityServices["📊 Observability"]
+            Logging["Logging<br/>• Structured Logs<br/>• Log Aggregation<br/>• Search"]
+            Metrics["Metrics<br/>• Performance<br/>• Usage<br/>• Costs"]
+            Tracing["Tracing<br/>• Distributed<br/>• Request Flow<br/>• Bottlenecks"]
+        end
+    end
+    
+    subgraph ExternalServices["☁️ External Services"]
+        
+        subgraph AIProviders["🤖 AI Providers"]
+            Anthropic["Anthropic<br/>Claude API"]
+            OpenAI["OpenAI<br/>GPT API"]
+            Custom["Custom<br/>Self-hosted"]
+        end
+        
+        subgraph DataSources["📚 Data Sources"]
+            FileSystem["File System<br/>Local/Network"]
+            Databases["Databases<br/>SQL/NoSQL"]
+            APIs["External APIs<br/>REST/GraphQL"]
+        end
+    end
+    
+    subgraph DataFlow["📊 Data Flow Examples"]
+        
+        subgraph Flow1["Example: Code Analysis"]
+            F1_1["User Request"] --> F1_2["Copilot Plans"]
+            F1_2 --> F1_3["MCP Reads Files"]
+            F1_3 --> F1_4["DataMiner Extracts"]
+            F1_4 --> F1_5["LLM Analyzes"]
+            F1_5 --> F1_6["Response"]
+        end
+        
+        subgraph Flow2["Example: Document Generation"]
+            F2_1["User Query"] --> F2_2["DataMiner Gathers"]
+            F2_2 --> F2_3["Copilot Reasons"]
+            F2_3 --> F2_4["LLM Generates"]
+            F2_4 --> F2_5["MCP Writes"]
+            F2_5 --> F2_6["Output"]
+        end
+    end
+    
+    %% Main Connections
+    Developer --> AppController
+    API --> AppController
+    CLI --> AppController
+    
+    AppController --> ModuleRouter
+    ConfigManager --> ModuleRouter
+    
+    ModuleRouter --> LLM
+    ModuleRouter --> MCP
+    ModuleRouter --> Copilot
+    ModuleRouter --> DataMiner
+    
+    %% Module Interactions
+    Copilot -.->|Uses| LLM
+    Copilot -.->|Uses| MCP
+    DataMiner -.->|Uses| LLM
+    DataMiner -.->|Uses| MCP
+    
+    %% Shared Services
+    LLM --> Cache
+    MCP --> Storage
+    Copilot --> Cache
+    DataMiner --> Storage
+    
+    AppController --> Auth
+    AppController --> RateLimit
+    
+    %% External Connections
+    LLM --> AIProviders
+    MCP --> FileSystem
+    DataMiner --> Databases
+    
+    %% Observability
+    LLM -.->|Logs| Logging
+    MCP -.->|Metrics| Metrics
+    Copilot -.->|Traces| Tracing
+    DataMiner -.->|Logs| Logging
+    
+    %% Event Bus
+    EventBus -.->|Events| LLM
+    EventBus -.->|Events| MCP
+    EventBus -.->|Events| Copilot
+    EventBus -.->|Events| DataMiner
+    
+    style UserLayer fill:#1e293b,stroke:#3b82f6,stroke-width:2px
+    style ApplicationLayer fill:#1e3a5f,stroke:#60a5fa,stroke-width:2px
+    style CoreModules fill:#312e4f,stroke:#8b5cf6,stroke-width:3px
+    style SharedServices fill:#1e453f,stroke:#10b981,stroke-width:2px
+    style ExternalServices fill:#3f2e1e,stroke:#f59e0b,stroke-width:2px
+    style DataFlow fill:#2d1b47,stroke:#ec4899,stroke-width:2px
