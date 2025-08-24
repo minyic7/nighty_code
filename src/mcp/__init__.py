@@ -10,6 +10,7 @@ from .core import (
     # Base classes
     BaseMCPServer,
     BaseMCPClient,
+    MCPManager,
     # Types
     ToolDefinition,
     ServerCapabilities,
@@ -38,6 +39,7 @@ __all__ = [
     # Core - Base classes
     "BaseMCPServer",
     "BaseMCPClient",
+    "MCPManager",
     "ToolDefinition",
     "ServerCapabilities",
     "MCPClientConfig",
