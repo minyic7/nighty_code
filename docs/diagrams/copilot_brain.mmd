@@ -1,109 +1,128 @@
 %%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
 
 graph TB
-    %% Copilot Module - Brain-like Cognitive Architecture
+    %% Copilot Module - Cognitive Architecture
+    %% Shows implemented components and their actual data flow
     
-    subgraph Input["🎤 Sensory Input"]
-        UserQuery[/"User Query<br/>Natural Language"/]
-        Context[/"Context<br/>History & Environment"/]
-        Signals[/"Signals<br/>Events & Triggers"/]
+    subgraph Input["📥 Input Layer"]
+        UserMessage["User Message<br/>Natural Language"]
+        SessionContext["Session Context<br/>History & State"]
     end
     
-    subgraph CerebralCortex["🧠 Cerebral Cortex - Higher Processing"]
+    subgraph CognitiveEngine["🧠 Cognitive Processing Engine (nodes/cognitive.py)"]
         
-        subgraph PrefrontalCortex["🎯 Prefrontal Cortex<br/>Executive Functions"]
-            Planning["Planning Node<br/>• Goal Setting<br/>• Strategy Formation<br/>• Task Decomposition"]
-            DecisionMaking["Decision Making<br/>• Option Evaluation<br/>• Risk Assessment<br/>• Choice Selection"]
-            Reasoning["Reasoning Engine<br/>• Logical Analysis<br/>• Causal Inference<br/>• Problem Solving"]
+        subgraph Understanding["🎯 Understanding Phase"]
+            MultiHypothesis["Multi-Hypothesis Generation<br/>• Generate 3-5 interpretations<br/>• Evidence gathering<br/>• Confidence scoring"]
+            HypothesisTesting["Hypothesis Testing<br/>• Test top hypothesis<br/>• Adjust confidence<br/>• Select best intent"]
+            FastPath["Fast Path Detection<br/>• Simple queries<br/>• Direct responses<br/>• Skip complex flow"]
         end
         
-        subgraph TemporalLobe["📚 Temporal Lobe<br/>Memory Systems"]
-            ShortTermMem["Short-term Memory<br/>• Current Context<br/>• Recent Interactions<br/>• Active Tasks"]
-            LongTermMem["Long-term Memory<br/>• Knowledge Base<br/>• Past Experiences<br/>• Learned Patterns"]
-            SemanticMem["Semantic Memory<br/>• Embeddings<br/>• Associations<br/>• Concepts"]
+        subgraph Planning["📋 Planning Phase"]
+            GoalSetting["Goal Definition<br/>• Extract main objective<br/>• Identify requirements"]
+            StepGeneration["Step Generation<br/>• Break into tasks<br/>• Order operations<br/>• Estimate complexity"]
+            ToolMapping["Tool Mapping<br/>• Match tools to tasks<br/>• Check availability<br/>• Plan parameters"]
         end
         
-        subgraph ParietalLobe["🔧 Parietal Lobe<br/>Tool Integration"]
-            ToolRouter["Tool Router<br/>• Tool Selection<br/>• Parameter Mapping<br/>• Capability Matching"]
-            ToolExecutor["Tool Executor<br/>• Safe Execution<br/>• Result Processing<br/>• Error Handling"]
-        end
-    end
-    
-    subgraph Limbic["💭 Limbic System - Emotional & Safety"]
-        
-        subgraph Amygdala["⚠️ Amygdala<br/>Threat Detection"]
-            Guardrails["Guardrails<br/>• Content Filtering<br/>• PII Detection<br/>• Injection Prevention"]
-            SafetyCheck["Safety Checker<br/>• Code Validation<br/>• Risk Assessment<br/>• Compliance"]
+        subgraph Reasoning["🤔 Reasoning Phase"]
+            ContextAnalysis["Context Analysis<br/>• Current situation<br/>• Recent actions<br/>• Available data"]
+            NextAction["Next Action Decision<br/>• Evaluate options<br/>• Risk assessment<br/>• Select action"]
         end
         
-        subgraph Hippocampus["🔄 Hippocampus<br/>Memory Formation"]
-            MemConsolidation["Memory Consolidation<br/>• Important Events<br/>• Pattern Recognition<br/>• Learning"]
+        subgraph Reflection["🔄 Reflection Phase"]
+            ExperienceAnalysis["Experience Analysis<br/>• What worked<br/>• What failed<br/>• Success patterns"]
+            LessonExtraction["Lesson Extraction<br/>• Key learnings<br/>• Improvements<br/>• Memory updates"]
         end
     end
     
-    subgraph Cerebellum["⚙️ Cerebellum - Coordination"]
-        WorkflowOrch["Workflow Orchestrator<br/>• Step Coordination<br/>• Parallel Processing<br/>• Synchronization"]
-        NodeCoordinator["Node Coordinator<br/>• Inter-node Communication<br/>• State Management<br/>• Resource Allocation"]
+    subgraph StateManagement["📊 State & Memory (core/types.py)"]
+        CopilotState["CopilotState<br/>• Messages[]<br/>• Thoughts[]<br/>• Hypotheses[]<br/>• Plans[]<br/>• Confidence Scores"]
+        
+        MemorySystem["Memory System<br/>• Short-term: current context<br/>• Long-term: learned patterns<br/>• Session isolation"]
+        
+        ThoughtHistory["Thought History<br/>• Understanding thoughts<br/>• Planning thoughts<br/>• Reasoning thoughts<br/>• Reflection thoughts"]
     end
     
-    subgraph BrainStem["🔌 Brain Stem - Core Functions"]
-        SessionManager["Session Manager<br/>• Lifecycle Control<br/>• State Persistence<br/>• Recovery"]
-        EventBus["Event Bus<br/>• Message Routing<br/>• Event Processing<br/>• Notifications"]
+    subgraph SafetyLayer["🛡️ Safety & Validation (guardrails/)"]
+        InputValidation["Input Validation<br/>• Content filtering<br/>• PII detection<br/>• Injection prevention"]
+        
+        OutputValidation["Output Validation<br/>• Response safety<br/>• Compliance check<br/>• Quality assurance"]
     end
     
-    subgraph Motor["🤖 Motor Cortex - Actions"]
-        ResponseGen["Response Generator<br/>• Natural Language<br/>• Structured Output<br/>• Formatting"]
-        ActionExecutor["Action Executor<br/>• Commands<br/>• Operations<br/>• Side Effects"]
+    subgraph ToolIntegration["🔧 Tool Integration"]
+        MCPInterface["MCP Interface<br/>• Tool discovery<br/>• Tool execution<br/>• Result handling"]
+        
+        ToolRouter["Tool Router<br/>• Select appropriate tool<br/>• Map parameters<br/>• Handle responses"]
     end
     
-    subgraph Reflection["🔍 Reflection Loop"]
-        QualityAnalysis["Quality Analysis<br/>• Confidence Score<br/>• Gap Detection<br/>• Improvement Areas"]
-        SelfCorrection["Self-Correction<br/>• Error Recovery<br/>• Refinement<br/>• Optimization"]
+    subgraph WorkflowEngine["⚙️ Workflow Engine (core/workflow.py)"]
+        NodeOrchestrator["Node Orchestrator<br/>• Execute cognitive nodes<br/>• Manage flow control<br/>• Handle node transitions"]
+        
+        SessionManager["Session Manager<br/>• Track sessions<br/>• Maintain isolation<br/>• Handle lifecycle"]
     end
     
-    %% Neural Pathways (Connections)
-    UserQuery --> PrefrontalCortex
-    Context --> TemporalLobe
-    Signals --> BrainStem
+    subgraph Output["📤 Output Generation"]
+        ResponseBuilder["Response Builder<br/>• Natural language<br/>• Structured data<br/>• Format output"]
+        
+        ActionExecutor["Action Executor<br/>• Execute decisions<br/>• Call tools<br/>• Return results"]
+    end
     
-    PrefrontalCortex --> Planning
-    Planning --> Reasoning
-    Reasoning --> DecisionMaking
+    %% Main Flow
+    UserMessage --> Understanding
+    SessionContext --> CopilotState
     
-    DecisionMaking --> ToolRouter
-    ToolRouter --> ToolExecutor
+    Understanding --> MultiHypothesis
+    MultiHypothesis --> HypothesisTesting
+    HypothesisTesting --> FastPath
     
-    ShortTermMem <--> LongTermMem
-    LongTermMem <--> SemanticMem
+    FastPath -->|Simple| ResponseBuilder
+    FastPath -->|Complex| Planning
     
-    TemporalLobe --> MemConsolidation
-    MemConsolidation --> LongTermMem
+    Planning --> GoalSetting
+    GoalSetting --> StepGeneration
+    StepGeneration --> ToolMapping
     
-    PrefrontalCortex --> Guardrails
-    Guardrails --> SafetyCheck
+    ToolMapping --> Reasoning
+    Reasoning --> ContextAnalysis
+    ContextAnalysis --> NextAction
     
-    DecisionMaking --> WorkflowOrch
-    WorkflowOrch --> NodeCoordinator
-    NodeCoordinator --> EventBus
+    NextAction --> MCPInterface
+    MCPInterface --> ToolRouter
+    ToolRouter --> ActionExecutor
     
-    ToolExecutor --> ActionExecutor
-    DecisionMaking --> ResponseGen
+    ActionExecutor --> ExperienceAnalysis
+    ExperienceAnalysis --> LessonExtraction
+    LessonExtraction --> MemorySystem
     
-    ActionExecutor --> QualityAnalysis
-    ResponseGen --> QualityAnalysis
-    QualityAnalysis --> SelfCorrection
-    SelfCorrection -.->|Feedback| PrefrontalCortex
+    %% State Updates
+    Understanding -.->|Update| CopilotState
+    Planning -.->|Update| CopilotState
+    Reasoning -.->|Update| ThoughtHistory
+    Reflection -.->|Update| MemorySystem
     
-    %% Output
-    ResponseGen --> Output[/"Output<br/>• Response<br/>• Actions<br/>• Updates"/]
-    ActionExecutor --> Output
+    %% Safety Checks
+    UserMessage --> InputValidation
+    InputValidation --> Understanding
+    ResponseBuilder --> OutputValidation
+    OutputValidation --> Output
     
-    %% Memory Updates
-    QualityAnalysis -.->|Learn| MemConsolidation
+    %% Workflow Control
+    NodeOrchestrator --> Understanding
+    NodeOrchestrator --> Planning
+    NodeOrchestrator --> Reasoning
+    NodeOrchestrator --> Reflection
     
-    style CerebralCortex fill:#1e1e3f,stroke:#8b5cf6,stroke-width:3px
-    style Limbic fill:#2d1b47,stroke:#ec4899,stroke-width:2px
-    style Cerebellum fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px
-    style BrainStem fill:#1e453f,stroke:#10b981,stroke-width:2px
-    style Motor fill:#3f2e1e,stroke:#f59e0b,stroke-width:2px
-    style Reflection fill:#3f1e2e,stroke:#ef4444,stroke-width:2px
+    SessionManager --> CopilotState
+    
+    style CognitiveEngine fill:#1e3a5f,stroke:#3b82f6,stroke-width:3px
+    style StateManagement fill:#1e453f,stroke:#10b981,stroke-width:2px
+    style SafetyLayer fill:#3f2e1e,stroke:#ef4444,stroke-width:2px
+    style WorkflowEngine fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
+    style ToolIntegration fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    
+    %% Implementation Status Note
+    subgraph Legend["📌 Implementation Status"]
+        FullyImplemented["✅ All components shown are implemented<br/>Files: cognitive.py, workflow.py, types.py, guardrails/"]
+        FutureEnhancements["🔮 Future: Advanced memory, semantic search, learning system"]
+    end
+    
+    style Legend fill:#1a1a2e,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5

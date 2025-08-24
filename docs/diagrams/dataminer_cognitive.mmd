@@ -1,137 +1,131 @@
 %%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
 
 graph TB
-    %% DataMiner Module - Cognitive Extraction Process
+    %% DataMiner Module - Cognitive Data Extraction Pipeline
+    %% All strategies and validation systems are implemented
     
-    subgraph InputLayer["📥 Input Layer"]
-        RawContent[/"Raw Content<br/>• Text<br/>• Documents<br/>• Code<br/>• Repository"/]
-        Schema[/"Target Schema<br/>Pydantic Model"/]
-        Config[/"Configuration<br/>• Mode<br/>• Thresholds<br/>• Settings"/]
+    subgraph Input["📥 Input Layer"]
+        RawContent["Raw Content<br/>• Text/Documents<br/>• Code files<br/>• Repositories"]
+        TargetSchema["Target Schema<br/>• Pydantic models<br/>• Field definitions<br/>• Validation rules"]
+        ExtractionConfig["Extraction Config<br/>• Mode selection<br/>• Thresholds<br/>• Retry limits"]
     end
     
-    subgraph CognitivePipeline["🧠 Cognitive Processing Pipeline"]
+    subgraph StrategyEngine["🎯 Strategy Selection & Execution"]
         
-        subgraph Discovery["🔍 Discovery Phase<br/>Understanding & Analysis"]
-            ContentAnalysis["Content Analysis<br/>• Type Detection<br/>• Structure Recognition<br/>• Pattern Identification"]
-            SchemaUnderstanding["Schema Understanding<br/>• Field Requirements<br/>• Relationships<br/>• Constraints"]
-            StrategySelection["Strategy Selection<br/>• Simple ⚡<br/>• Multi-stage 🔄<br/>• Cognitive 🧠<br/>• Reflective 🔁"]
+        subgraph StrategySelector["Strategy Selector (client.py)"]
+            AutoSelect["Auto Selection<br/>• Analyze complexity<br/>• Check content size<br/>• Pick best strategy"]
+            ManualSelect["Manual Selection<br/>• User specified<br/>• Force strategy<br/>• Override auto"]
         end
         
-        subgraph Extraction["⛏️ Extraction Phase<br/>Multi-Strategy Processing"]
+        subgraph Strategies["Available Strategies (strategies/)"]
+            Simple["Simple Strategy<br/>• Single LLM call<br/>• Fast processing<br/>• Basic extraction<br/>(simple.py)"]
             
-            subgraph SimpleStrategy["⚡ Simple Strategy"]
-                SinglePass["Single Pass<br/>• Fast Processing<br/>• Direct Mapping<br/>• Basic Validation"]
-            end
+            MultiStage["Multi-Stage Strategy<br/>• 3-stage pipeline<br/>• Progressive refinement<br/>• Gap filling<br/>(multistage.py)"]
             
-            subgraph MultiStage["🔄 Multi-Stage Strategy"]
-                Stage1["Stage 1: Initial<br/>• Rough Extraction<br/>• Identify Sections"]
-                Stage2["Stage 2: Refinement<br/>• Detailed Extraction<br/>• Fill Gaps"]
-                Stage3["Stage 3: Validation<br/>• Schema Compliance<br/>• Quality Check"]
-                
-                Stage1 --> Stage2
-                Stage2 --> Stage3
-            end
+            Cognitive["Cognitive Strategy<br/>• Uses Copilot<br/>• Understanding phase<br/>• Planning phase<br/>• Execution phase<br/>(cognitive.py)"]
             
-            subgraph CognitiveStrategy["🧠 Cognitive Strategy"]
-                Understanding["Understanding<br/>• Context Analysis<br/>• Intent Recognition"]
-                Planning["Planning<br/>• Extraction Strategy<br/>• Resource Allocation"]
-                Execution["Execution<br/>• Guided Extraction<br/>• Reasoning"]
-                
-                Understanding --> Planning
-                Planning --> Execution
-            end
-            
-            subgraph ReflectiveStrategy["🔁 Reflective Strategy"]
-                InitialAttempt["Initial Attempt"]
-                QualityAssess["Quality Assessment<br/>• Confidence Score<br/>• Gap Analysis"]
-                Improvement["Improvement<br/>• Targeted Refinement<br/>• Iterative Enhancement"]
-                
-                InitialAttempt --> QualityAssess
-                QualityAssess --> Improvement
-                Improvement -.->|Iterate| InitialAttempt
-            end
-        end
-        
-        subgraph Synthesis["🔮 Synthesis Phase<br/>Integration & Consolidation"]
-            ResultMerger["Result Merger<br/>• Combine Extractions<br/>• Resolve Conflicts<br/>• Optimize Structure"]
-            GapFiller["Gap Filler<br/>• Identify Missing<br/>• Infer from Context<br/>• Apply Defaults"]
-            Enrichment["Data Enrichment<br/>• Add Metadata<br/>• Cross-references<br/>• Relationships"]
-        end
-        
-        subgraph Validation["✅ Validation Phase"]
-            SchemaValidation["Schema Validation<br/>• Type Checking<br/>• Constraint Validation<br/>• Required Fields"]
-            QualityControl["Quality Control<br/>• Completeness Check<br/>• Consistency Check<br/>• Accuracy Assessment"]
-            ConfidenceScoring["Confidence Scoring<br/>• Field Confidence<br/>• Overall Confidence<br/>• Quality Metrics"]
+            Reflective["Reflective Strategy<br/>• Iterative improvement<br/>• Max 3 iterations<br/>• Self-assessment<br/>(reflective.py)"]
         end
     end
     
-    subgraph Intelligence["🎓 Intelligence Layer"]
+    subgraph ProcessingPipeline["⚙️ Processing Pipeline"]
         
-        subgraph LearningSystem["📚 Learning System"]
-            PatternMemory["Pattern Memory<br/>• Successful Patterns<br/>• Failed Patterns<br/>• Optimizations"]
-            SchemaKnowledge["Schema Knowledge<br/>• Common Structures<br/>• Best Practices<br/>• Domain Specifics"]
+        subgraph StageExecution["Stage Execution"]
+            InitialExtraction["Initial Extraction<br/>• First pass<br/>• Rough structure<br/>• Identify fields"]
+            
+            Refinement["Refinement<br/>• Fill gaps<br/>• Improve accuracy<br/>• Add details"]
+            
+            Validation["Validation<br/>• Schema compliance<br/>• Type checking<br/>• Constraint validation"]
         end
         
-        subgraph AdaptiveControl["🎛️ Adaptive Control"]
-            StrategyOptimizer["Strategy Optimizer<br/>• Performance Metrics<br/>• Success Rates<br/>• Auto-tuning"]
-            ThresholdAdjuster["Threshold Adjuster<br/>• Confidence Levels<br/>• Quality Standards<br/>• Processing Limits"]
+        subgraph QualityControl["Quality Control (utils/validator.py)"]
+            SchemaValidator["Schema Validator<br/>• Pydantic validation<br/>• Required fields<br/>• Type constraints"]
+            
+            ConfidenceScorer["Confidence Scorer<br/>• Field confidence<br/>• Overall score<br/>• Strategy confidence<br/>(utils/confidence.py)"]
+            
+            GapAnalyzer["Gap Analyzer<br/>• Missing fields<br/>• Low confidence<br/>• Improvement areas"]
         end
     end
     
-    subgraph OutputLayer["📤 Output Layer"]
-        ExtractedData["Extracted Data<br/>Type-safe Object"]
-        Confidence["Confidence Metrics<br/>• Overall: 0.95<br/>• Per Field<br/>• By Strategy"]
-        GapAnalysis["Gap Analysis<br/>• Missing Fields<br/>• Low Confidence<br/>• Recommendations"]
-        Metadata["Metadata<br/>• Sources<br/>• Strategies Used<br/>• Processing Time"]
+    subgraph DataModels["📊 Data Models (models/)"]
+        BaseModels["Base Models<br/>• ExtractableModel<br/>• Common fields<br/>• Metadata<br/>(base.py)"]
+        
+        CodeModels["Code Models<br/>• Function<br/>• Class<br/>• Module<br/>(code.py)"]
+        
+        DocumentModels["Document Models<br/>• Section<br/>• Article<br/>• Report<br/>(document.py)"]
+        
+        RepositoryModels["Repository Models<br/>• Repository info<br/>• File structure<br/>• Dependencies<br/>(repository.py)"]
     end
     
-    %% Flow Connections
-    RawContent --> Discovery
-    Schema --> Discovery
-    Config --> Discovery
+    subgraph ResultProcessing["📤 Result Processing"]
+        ResultMerger["Result Merger<br/>• Combine strategies<br/>• Merge iterations<br/>• Consolidate data"]
+        
+        MetadataEnrichment["Metadata Enrichment<br/>• Add timestamps<br/>• Strategy used<br/>• Processing time<br/>• Confidence scores"]
+        
+        OutputFormatter["Output Formatter<br/>• ExtractionResult<br/>• Type-safe object<br/>• JSON serializable"]
+    end
     
-    Discovery --> ContentAnalysis
-    ContentAnalysis --> SchemaUnderstanding
-    SchemaUnderstanding --> StrategySelection
+    subgraph ErrorHandling["⚠️ Error Handling (core/exceptions.py)"]
+        ExtractionErrors["Extraction Errors<br/>• Validation failures<br/>• Timeout errors<br/>• Strategy failures"]
+        
+        RecoveryMechanism["Recovery Mechanism<br/>• Retry logic<br/>• Fallback strategies<br/>• Partial results"]
+    end
     
-    StrategySelection -->|Fast| SimpleStrategy
-    StrategySelection -->|Thorough| MultiStage
-    StrategySelection -->|Complex| CognitiveStrategy
-    StrategySelection -->|Iterative| ReflectiveStrategy
+    %% Main Flow
+    RawContent --> StrategySelector
+    TargetSchema --> StrategySelector
+    ExtractionConfig --> StrategySelector
     
-    SimpleStrategy --> Synthesis
-    MultiStage --> Synthesis
-    CognitiveStrategy --> Synthesis
-    ReflectiveStrategy --> Synthesis
+    StrategySelector --> AutoSelect
+    StrategySelector --> ManualSelect
     
-    Synthesis --> ResultMerger
-    ResultMerger --> GapFiller
-    GapFiller --> Enrichment
+    AutoSelect --> Strategies
+    ManualSelect --> Strategies
     
-    Enrichment --> Validation
-    Validation --> SchemaValidation
-    SchemaValidation --> QualityControl
-    QualityControl --> ConfidenceScoring
+    Simple --> InitialExtraction
+    MultiStage --> InitialExtraction
+    Cognitive --> InitialExtraction
+    Reflective --> InitialExtraction
     
-    ConfidenceScoring --> ExtractedData
-    ConfidenceScoring --> Confidence
-    QualityControl --> GapAnalysis
-    Enrichment --> Metadata
+    InitialExtraction --> Refinement
+    Refinement --> Validation
     
-    %% Learning Feedback
-    ConfidenceScoring -.->|Feedback| PatternMemory
-    GapAnalysis -.->|Learn| SchemaKnowledge
+    Validation --> SchemaValidator
+    SchemaValidator --> ConfidenceScorer
+    ConfidenceScorer --> GapAnalyzer
     
-    PatternMemory --> StrategyOptimizer
-    SchemaKnowledge --> ThresholdAdjuster
+    GapAnalyzer -->|Needs improvement| Refinement
+    GapAnalyzer -->|Acceptable| ResultMerger
     
-    StrategyOptimizer -.->|Optimize| StrategySelection
-    ThresholdAdjuster -.->|Adjust| QualityControl
+    ResultMerger --> MetadataEnrichment
+    MetadataEnrichment --> OutputFormatter
     
-    style InputLayer fill:#1e293b,stroke:#3b82f6,stroke-width:2px
-    style Discovery fill:#2d1b47,stroke:#8b5cf6,stroke-width:2px
-    style Extraction fill:#1e3a5f,stroke:#10b981,stroke-width:2px
-    style Synthesis fill:#312e4f,stroke:#f59e0b,stroke-width:2px
-    style Validation fill:#1e453f,stroke:#ef4444,stroke-width:2px
-    style Intelligence fill:#3f2e1e,stroke:#ec4899,stroke-width:2px
-    style OutputLayer fill:#1e293b,stroke:#06b6d4,stroke-width:2px
+    %% Model Integration
+    TargetSchema --> BaseModels
+    BaseModels --> CodeModels
+    BaseModels --> DocumentModels
+    BaseModels --> RepositoryModels
+    
+    %% Error Flows
+    InitialExtraction -.->|Error| ExtractionErrors
+    Refinement -.->|Error| ExtractionErrors
+    Validation -.->|Error| ExtractionErrors
+    ExtractionErrors --> RecoveryMechanism
+    RecoveryMechanism -.->|Retry| Strategies
+    
+    %% Confidence Feedback
+    ConfidenceScorer -.->|Low confidence| Reflective
+    
+    style StrategyEngine fill:#1e3a5f,stroke:#3b82f6,stroke-width:3px
+    style ProcessingPipeline fill:#1e453f,stroke:#10b981,stroke-width:2px
+    style DataModels fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
+    style ResultProcessing fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    style ErrorHandling fill:#3f2e1e,stroke:#ef4444,stroke-width:2px
+    
+    %% Implementation Status
+    subgraph Legend["📌 Implementation Status"]
+        AllImplemented["✅ All components shown are fully implemented"]
+        FilesUsed["📁 Files: client.py, strategies/*, models/*, utils/*"]
+    end
+    
+    style Legend fill:#1a1a2e,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5

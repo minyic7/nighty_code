@@ -1,84 +1,117 @@
 %%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
 
 graph TB
-    %% MCP Module - Model Context Protocol
+    %% MCP Module - Model Context Protocol Implementation
+    %% Core infrastructure and filesystem server are implemented
     
-    subgraph Request["🎯 Request Layer"]
-        ToolCall["Tool Call<br/>- Name<br/>- Arguments<br/>- Context"]
-        ResourceReq["Resource Request<br/>- URI<br/>- Type"]
-        PromptReq["Prompt Request<br/>- Template<br/>- Variables"]
-    end
-    
-    subgraph MCPManager["🎛️ MCP Manager"]
-        ServerRegistry["Server Registry<br/>📚 Multiple Servers"]
-        Router["Tool Router<br/>🔀 Dynamic Routing"]
-        Discovery["Discovery Service<br/>🔍 Tool/Resource Discovery"]
-    end
-    
-    subgraph Servers["🖥️ Server Implementations"]
+    subgraph RequestLayer["📨 Request Layer"]
+        ToolCall["Tool Call Request<br/>• Tool name<br/>• Arguments dict<br/>• Validation"]
         
-        subgraph FSServer["📁 Filesystem Server"]
-            FSTools["Tools:<br/>• read_file<br/>• write_file<br/>• list_directory<br/>• search_files<br/>• grep<br/>• diff_files"]
-            FSSecurity["Security:<br/>🔒 Access Control<br/>🛡️ Path Validation<br/>📏 Size Limits"]
+        ResourceRequest["Resource Request<br/>• Resource URI<br/>• Resource type<br/>• Access mode"]
+        
+        PromptRequest["Prompt Request<br/>🔮 Future Feature<br/>• Template loading<br/>• Variable substitution"]
+    end
+    
+    subgraph MCPCore["🎛️ MCP Core Infrastructure"]
+        
+        subgraph Manager["Manager (core/manager.py)"]
+            MCPManager["MCP Manager<br/>• Server registry<br/>• Tool routing<br/>• Discovery service"]
+            
+            ServerRegistry["Server Registry<br/>• Register servers<br/>• Lookup by name<br/>• List all servers"]
+            
+            ToolRouter["Tool Router<br/>• Route to server<br/>• Call tool method<br/>• Handle response"]
         end
         
-        subgraph CustomServers["🔧 Custom Servers"]
-            DBServer["Database Server<br/>• Query<br/>• Update"]
-            APIServer["API Server<br/>• REST<br/>• GraphQL"]
-            CompilerServer["Compiler Server<br/>• Build<br/>• Test"]
+        subgraph BaseInfrastructure["Base Infrastructure (core/)"]
+            BaseServer["Base Server (base_server.py)<br/>• Abstract interface<br/>• Tool registration<br/>• Error handling"]
+            
+            BaseClient["Base Client (base_client.py)<br/>• Client interface<br/>• Request formatting<br/>• Response parsing"]
+            
+            TypeDefinitions["Type Definitions (types.py)<br/>• ToolCall<br/>• ToolResult<br/>• Resource<br/>• ToolInfo"]
         end
     end
     
-    subgraph Execution["⚡ Execution Layer"]
-        Validator["Parameter Validator<br/>✅ Type Check<br/>✅ Required Fields"]
-        Executor["Safe Executor<br/>🔐 Sandboxed<br/>⏱️ Timeout Control"]
-        ResultProcessor["Result Processor<br/>📦 Format Output<br/>🎨 Transform Data"]
+    subgraph ImplementedServers["✅ Implemented Servers"]
+        
+        subgraph FilesystemServer["📁 Filesystem Server (servers/filesystem.py)"]
+            FSTools["Available Tools:<br/>• read_file<br/>• write_file<br/>• list_directory<br/>• search_files<br/>• get_file_info"]
+            
+            FSSecurity["Security Features:<br/>• Path validation<br/>• Access control<br/>• Size limits<br/>• Safe operations"]
+            
+            FSCapabilities["Capabilities:<br/>• Text files<br/>• Binary files<br/>• Directory traversal<br/>• Pattern matching"]
+        end
     end
     
-    subgraph Resources["📚 Resource Layer"]
-        FileRes["File Resources<br/>📄 Documents<br/>💾 Data Files"]
-        PromptRes["Prompt Templates<br/>📝 Reusable<br/>🔄 Parameterized"]
-        MetaRes["Metadata<br/>📊 Schemas<br/>🏷️ Tags"]
+    subgraph FutureServers["🔮 Future Servers (Conceptual)"]
+        DatabaseServer["Database Server<br/>• SQL queries<br/>• NoSQL operations<br/>• Schema management"]
+        
+        APIServer["API Server<br/>• REST endpoints<br/>• GraphQL queries<br/>• WebSocket support"]
+        
+        CompilerServer["Compiler Server<br/>• Code compilation<br/>• Test execution<br/>• Build automation"]
     end
     
-    subgraph Output["📤 Output"]
-        ToolResult["Tool Result<br/>- Status<br/>- Content<br/>- Metadata"]
-        ResourceData["Resource Data<br/>- Content<br/>- Type<br/>- URI"]
-        Error["Error Handling<br/>- Type<br/>- Message<br/>- Recovery"]
+    subgraph ExecutionFlow["⚡ Execution Flow"]
+        RequestValidation["Request Validation<br/>• Parameter checking<br/>• Type validation<br/>• Permission check"]
+        
+        ToolExecution["Tool Execution<br/>• Invoke tool method<br/>• Handle async ops<br/>• Capture output"]
+        
+        ResultProcessing["Result Processing<br/>• Format response<br/>• Add metadata<br/>• Error wrapping"]
     end
     
-    %% Connections
+    subgraph ErrorHandling["⚠️ Error Handling (core/exceptions.py)"]
+        MCPException["MCP Exception<br/>• Base exception<br/>• Error codes<br/>• Error messages"]
+        
+        ValidationError["Validation Error<br/>• Parameter errors<br/>• Type mismatches<br/>• Missing fields"]
+        
+        ExecutionError["Execution Error<br/>• Tool failures<br/>• Timeout errors<br/>• Permission denied"]
+    end
+    
+    %% Main Flow
     ToolCall --> MCPManager
-    ResourceReq --> MCPManager
-    PromptReq --> MCPManager
+    ResourceRequest --> MCPManager
+    PromptRequest --> MCPManager
     
     MCPManager --> ServerRegistry
-    ServerRegistry --> Router
-    Router --> Discovery
+    ServerRegistry --> ToolRouter
     
-    Discovery --> Servers
+    ToolRouter --> RequestValidation
+    RequestValidation --> BaseServer
     
-    FSServer --> Execution
-    CustomServers --> Execution
+    BaseServer --> FilesystemServer
+    BaseServer -.->|Future| DatabaseServer
+    BaseServer -.->|Future| APIServer
+    BaseServer -.->|Future| CompilerServer
     
-    Execution --> Validator
-    Validator --> Executor
-    Executor --> ResultProcessor
+    FilesystemServer --> FSTools
+    FSTools --> FSSecurity
+    FSSecurity --> FSCapabilities
     
-    Resources --> FSServer
-    Resources --> CustomServers
+    FSCapabilities --> ToolExecution
+    ToolExecution --> ResultProcessing
     
-    ResultProcessor --> ToolResult
-    ResultProcessor --> ResourceData
-    Executor -.->|On Error| Error
+    %% Error Flow
+    RequestValidation -.->|Invalid| ValidationError
+    ToolExecution -.->|Failed| ExecutionError
+    ValidationError --> MCPException
+    ExecutionError --> MCPException
     
-    %% Feedback
-    ToolResult -.->|Cache| MCPManager
-    Error -.->|Retry| Router
+    %% Type System
+    ToolCall --> TypeDefinitions
+    ResultProcessing --> TypeDefinitions
+    BaseServer --> TypeDefinitions
     
-    style Request fill:#1e293b,stroke:#3b82f6,stroke-width:2px
-    style MCPManager fill:#1e3a5f,stroke:#60a5fa,stroke-width:2px
-    style Servers fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
-    style Execution fill:#1e3a5f,stroke:#10b981,stroke-width:2px
-    style Resources fill:#374151,stroke:#f59e0b,stroke-width:2px
-    style Output fill:#1e293b,stroke:#ef4444,stroke-width:2px
+    style RequestLayer fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px
+    style MCPCore fill:#1e453f,stroke:#10b981,stroke-width:3px
+    style ImplementedServers fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
+    style FutureServers fill:#2d1b47,stroke:#ec4899,stroke-width:1px,stroke-dasharray: 5 5
+    style ExecutionFlow fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    style ErrorHandling fill:#3f2e1e,stroke:#ef4444,stroke-width:2px
+    
+    %% Implementation Status
+    subgraph Legend["📌 Implementation Status"]
+        Implemented["✅ Implemented: Manager, Filesystem Server, Base Infrastructure"]
+        Planned["🔮 Planned: Database, API, Compiler servers"]
+        Architecture["🏗️ Ready for extension with new server types"]
+    end
+    
+    style Legend fill:#1a1a2e,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5

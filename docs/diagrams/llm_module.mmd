@@ -1,71 +1,120 @@
 %%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
 
 graph TB
-    %% LLM Module Architecture
+    %% LLM Module - Complete Provider Management System
+    %% Fully implemented with all middleware and providers
     
-    subgraph Input["📥 Input Layer"]
-        User[/"User Request"/]
-        Messages["Messages[]<br/>- System<br/>- User<br/>- Assistant"]
-        Schema["Pydantic Schema<br/>(Optional)"]
-    end
-    
-    subgraph Manager["🎛️ LLM Manager"]
-        Config["Configuration<br/>- Retry Policy<br/>- Rate Limits<br/>- Pool Size"]
-        ProviderSelect["Provider Selection<br/>- Anthropic<br/>- OpenAI<br/>- Fallback"]
-        ClientPool["Connection Pool<br/>🔌🔌🔌"]
-    end
-    
-    subgraph Middleware["⚙️ Middleware Pipeline"]
-        direction LR
-        MW1["🔁 Retry<br/>Exponential Backoff"]
-        MW2["⏱️ Rate Limiter<br/>Token & Request"]
-        MW3["📊 Metrics<br/>Latency & Usage"]
-        MW4["📝 Logger<br/>Request/Response"]
-        MW5["🔢 Token Calculator<br/>Count & Validate"]
+    subgraph ClientLayer["🎯 Client Interface (core/client.py)"]
+        LLMClient["LLM Client<br/>• Unified interface<br/>• Structured output<br/>• Stream support"]
         
-        MW1 --> MW2
-        MW2 --> MW3
-        MW3 --> MW4
-        MW4 --> MW5
+        Methods["Client Methods<br/>• complete()<br/>• stream_complete()<br/>• with response_model"]
     end
     
-    subgraph Providers["🤖 Provider Layer"]
-        Anthropic["Claude API<br/>- claude-3-opus<br/>- claude-3-sonnet"]
-        OpenAI["OpenAI API<br/>- gpt-4<br/>- gpt-3.5-turbo"]
-        Instructor["Instructor<br/>Structured Output"]
+    subgraph ManagementLayer["🎛️ Management Layer"]
+        
+        subgraph Manager["Manager (core/manager.py)"]
+            LLMManager["LLM Manager<br/>• Singleton pattern<br/>• Provider registry<br/>• Pool management"]
+            ConfigManager["Config Manager<br/>• Global config<br/>• Provider configs<br/>• Pool settings"]
+        end
+        
+        subgraph ConnectionPool["Connection Pool (core/pool.py)"]
+            PoolManager["Pool Manager<br/>• Connection lifecycle<br/>• Health checks<br/>• Load balancing"]
+            ConnectionSlots["Connection Slots<br/>• Min/Max size<br/>• Timeout control<br/>• Reuse strategy"]
+        end
     end
     
-    subgraph Output["📤 Output Layer"]
-        Response["Response<br/>- Content<br/>- Usage<br/>- Metadata"]
-        Stream["Stream<br/>Token by Token"]
-        Structured["Structured Data<br/>Type-Safe Objects"]
+    subgraph MiddlewarePipeline["⚙️ Middleware Pipeline (middleware/)"]
+        
+        RetryMiddleware["Retry Middleware<br/>• Exponential backoff<br/>• Max retries<br/>• Error handling<br/>(retry.py)"]
+        
+        RateLimiter["Rate Limiter<br/>• Token limits<br/>• Request limits<br/>• Time windows<br/>(rate_limiter.py)"]
+        
+        TokenCalculator["Token Calculator<br/>• Count tokens<br/>• Validate limits<br/>• Cost estimation<br/>(token_calculator.py)"]
+        
+        MetricsCollector["Metrics Collector<br/>• Latency tracking<br/>• Usage stats<br/>• Success rates<br/>(metrics.py)"]
+        
+        RequestLogger["Request Logger<br/>• Request logging<br/>• Response logging<br/>• Error logging<br/>(logging.py)"]
     end
     
-    %% Flow connections
-    User --> Messages
-    Messages --> Manager
-    Schema -.->|Optional| Manager
+    subgraph ProviderLayer["🤖 Provider Layer (providers/)"]
+        
+        subgraph AnthropicProvider["Anthropic Provider (anthropic.py)"]
+            ClaudeModels["Claude Models<br/>• claude-3-opus<br/>• claude-3-sonnet<br/>• claude-3-haiku"]
+            AnthropicClient["Anthropic Client<br/>• Native SDK<br/>• Async support<br/>• Error handling"]
+        end
+        
+        subgraph OpenAIProvider["OpenAI Provider (openai.py)"]
+            GPTModels["GPT Models<br/>• gpt-4<br/>• gpt-3.5-turbo<br/>• Custom models"]
+            OpenAIClient["OpenAI Client<br/>• Native SDK<br/>• Async support<br/>• Function calling"]
+        end
+        
+        BaseProvider["Base Provider (base.py)<br/>• Abstract interface<br/>• Common methods<br/>• Type definitions"]
+    end
     
-    Manager --> Config
-    Config --> ProviderSelect
-    ProviderSelect --> ClientPool
-    ClientPool --> Middleware
+    subgraph StructuredOutput["📊 Structured Output"]
+        Instructor["Instructor Integration<br/>• Pydantic models<br/>• JSON schema<br/>• Validation<br/>• Retry on failure"]
+        
+        ResponseModels["Response Models<br/>• Type safety<br/>• Auto-validation<br/>• Field extraction"]
+    end
     
-    Middleware --> Providers
+    subgraph TypeSystem["📝 Type System (core/types.py)"]
+        CoreTypes["Core Types<br/>• Message<br/>• MessageRole<br/>• CompletionResponse<br/>• StreamChunk"]
+        
+        ConfigTypes["Config Types<br/>• LLMConfig<br/>• PoolConfig<br/>• RetryConfig<br/>• ProviderConfig"]
+        
+        EnumTypes["Enum Types<br/>• LLMProvider<br/>• ModelType<br/>• ResponseFormat"]
+    end
     
-    Anthropic --> Instructor
-    OpenAI --> Instructor
+    %% Main Request Flow
+    LLMClient --> Methods
+    Methods --> LLMManager
     
-    Instructor --> Response
-    Instructor --> Stream
-    Instructor --> Structured
+    LLMManager --> ConfigManager
+    ConfigManager --> ConnectionPool
     
-    %% Feedback loops
-    Response -.->|Metrics| MW3
-    Stream -.->|Tokens| MW5
+    ConnectionPool --> PoolManager
+    PoolManager --> ConnectionSlots
     
-    style Input fill:#1e293b,stroke:#3b82f6,stroke-width:2px
-    style Manager fill:#1e3a5f,stroke:#60a5fa,stroke-width:2px
-    style Middleware fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
-    style Providers fill:#1e3a5f,stroke:#10b981,stroke-width:2px
-    style Output fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    ConnectionSlots --> RetryMiddleware
+    RetryMiddleware --> RateLimiter
+    RateLimiter --> TokenCalculator
+    TokenCalculator --> MetricsCollector
+    MetricsCollector --> RequestLogger
+    
+    RequestLogger --> BaseProvider
+    BaseProvider --> AnthropicProvider
+    BaseProvider --> OpenAIProvider
+    
+    AnthropicProvider --> AnthropicClient
+    OpenAIProvider --> OpenAIClient
+    
+    %% Structured Output Flow
+    Methods -->|response_model| Instructor
+    Instructor --> AnthropicClient
+    Instructor --> OpenAIClient
+    Instructor --> ResponseModels
+    
+    %% Type System Integration
+    LLMClient --> CoreTypes
+    ConfigManager --> ConfigTypes
+    LLMManager --> EnumTypes
+    
+    %% Response Flow
+    AnthropicClient -->|Response| ResponseModels
+    OpenAIClient -->|Response| ResponseModels
+    ResponseModels --> LLMClient
+    
+    style ClientLayer fill:#1e3a5f,stroke:#3b82f6,stroke-width:3px
+    style ManagementLayer fill:#1e453f,stroke:#10b981,stroke-width:2px
+    style MiddlewarePipeline fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
+    style ProviderLayer fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    style StructuredOutput fill:#2d1b47,stroke:#ec4899,stroke-width:2px
+    style TypeSystem fill:#374151,stroke:#6b7280,stroke-width:2px
+    
+    %% Implementation Status
+    subgraph Legend["📌 Implementation Status"]
+        FullyImplemented["✅ All components are fully implemented and tested"]
+        KeyFeatures["🔑 Key Features: Multi-provider, Connection pooling, Full middleware, Structured output"]
+    end
+    
+    style Legend fill:#1a1a2e,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5

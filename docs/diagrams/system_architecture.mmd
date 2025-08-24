@@ -1,148 +1,116 @@
 %%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
 
 graph TB
-    %% Nighty Code - Complete System Architecture
+    %% Nighty Code - System Architecture
+    %% Shows how all modules integrate and work together
     
-    subgraph UserLayer["👤 User Layer"]
-        Developer[/"Developer<br/>Python Application"/]
-        API[/"API Client<br/>REST/GraphQL"/]
-        CLI[/"CLI Tool<br/>Command Line"/]
+    subgraph UserInterface["👤 User Interface Layer"]
+        PythonAPI["Python API<br/>✅ Implemented<br/>• Direct import<br/>• Async/await support<br/>• Type hints"]
+        
+        FutureCLI["CLI Tool<br/>🔮 Future<br/>• Command interface<br/>• Interactive mode"]
+        
+        FutureREST["REST API<br/>🔮 Future<br/>• HTTP endpoints<br/>• OpenAPI spec"]
     end
     
-    subgraph ApplicationLayer["🏗️ Application Layer"]
-        
-        subgraph Orchestration["🎭 Orchestration"]
-            AppController["Application Controller<br/>• Request Routing<br/>• Session Management<br/>• Error Handling"]
-            ConfigManager["Configuration Manager<br/>• Environment Variables<br/>• Settings Files<br/>• Dynamic Config"]
-        end
-        
-        subgraph Integration["🔗 Integration Points"]
-            ModuleRouter["Module Router<br/>• Dynamic Selection<br/>• Load Balancing<br/>• Fallback Logic"]
-            EventBus["Event Bus<br/>• Inter-module Communication<br/>• Event Streaming<br/>• Notifications"]
-        end
-    end
-    
-    subgraph CoreModules["🧩 Core Modules"]
-        
-        subgraph LLM["🤖 LLM Module"]
-            LLMManager["Manager<br/>+ Providers<br/>+ Middleware<br/>+ Pool"]
-        end
-        
-        subgraph MCP["🔧 MCP Module"]
-            MCPManager["Manager<br/>+ Servers<br/>+ Tools<br/>+ Resources"]
-        end
+    subgraph CoreModules["🧩 Core Modules (All Implemented)"]
         
         subgraph Copilot["🧠 Copilot Module"]
-            CopilotCore["Cognitive Engine<br/>+ Memory<br/>+ Reasoning<br/>+ Workflows"]
+            CopilotEngine["Cognitive Engine<br/>• Multi-hypothesis reasoning<br/>• Planning & execution<br/>• Memory management<br/>• Workflow orchestration"]
         end
         
         subgraph DataMiner["⛏️ DataMiner Module"]
-            DataMinerCore["Extraction Engine<br/>+ Strategies<br/>+ Validation<br/>+ Intelligence"]
+            DataMinerEngine["Extraction Engine<br/>• 4 extraction strategies<br/>• Schema validation<br/>• Confidence scoring<br/>• Type-safe output"]
+        end
+        
+        subgraph LLM["🤖 LLM Module"]
+            LLMEngine["Provider Manager<br/>• Anthropic & OpenAI<br/>• Connection pooling<br/>• Middleware pipeline<br/>• Structured output"]
+        end
+        
+        subgraph MCP["🔧 MCP Module"]
+            MCPEngine["Tool Manager<br/>• Filesystem server<br/>• Tool registry<br/>• Safe execution<br/>• Extensible architecture"]
         end
     end
     
-    subgraph SharedServices["🛠️ Shared Services"]
+    subgraph ModuleIntegration["🔗 Module Integration Patterns"]
         
-        subgraph DataServices["💾 Data Services"]
-            Cache["Cache Layer<br/>• Redis/Memory<br/>• TTL Management<br/>• Invalidation"]
-            Storage["Storage Layer<br/>• File System<br/>• Database<br/>• Object Store"]
-        end
+        CopilotUsesLLM["Copilot → LLM<br/>• Cognitive nodes<br/>• Understanding<br/>• Planning<br/>• Reasoning"]
         
-        subgraph SecurityServices["🔐 Security Services"]
-            Auth["Authentication<br/>• API Keys<br/>• OAuth<br/>• JWT"]
-            RateLimit["Rate Limiting<br/>• Per User<br/>• Per API<br/>• Global"]
-            Encryption["Encryption<br/>• Data at Rest<br/>• Data in Transit<br/>• Key Management"]
-        end
+        CopilotUsesMCP["Copilot → MCP<br/>• Tool execution<br/>• File operations<br/>• Resource access"]
         
-        subgraph ObservabilityServices["📊 Observability"]
-            Logging["Logging<br/>• Structured Logs<br/>• Log Aggregation<br/>• Search"]
-            Metrics["Metrics<br/>• Performance<br/>• Usage<br/>• Costs"]
-            Tracing["Tracing<br/>• Distributed<br/>• Request Flow<br/>• Bottlenecks"]
-        end
+        DataMinerUsesLLM["DataMiner → LLM<br/>• Extraction calls<br/>• Refinement<br/>• Validation"]
+        
+        DataMinerUsesCopilot["DataMiner → Copilot<br/>• Cognitive strategy<br/>• Complex reasoning<br/>• Planning extraction"]
     end
     
-    subgraph ExternalServices["☁️ External Services"]
+    subgraph CommonInfrastructure["🏗️ Common Infrastructure"]
         
-        subgraph AIProviders["🤖 AI Providers"]
-            Anthropic["Anthropic<br/>Claude API"]
-            OpenAI["OpenAI<br/>GPT API"]
-            Custom["Custom<br/>Self-hosted"]
-        end
+        TypeSystem["Type System<br/>• Pydantic models<br/>• Type validation<br/>• Serialization"]
         
-        subgraph DataSources["📚 Data Sources"]
-            FileSystem["File System<br/>Local/Network"]
-            Databases["Databases<br/>SQL/NoSQL"]
-            APIs["External APIs<br/>REST/GraphQL"]
-        end
+        ConfigManagement["Configuration<br/>• Environment vars<br/>• Config files<br/>• Runtime settings"]
+        
+        ErrorHandling["Error Handling<br/>• Custom exceptions<br/>• Recovery strategies<br/>• Graceful degradation"]
+        
+        Logging["Logging<br/>• Module loggers<br/>• Debug levels<br/>• Structured logs"]
     end
     
-    subgraph DataFlow["📊 Data Flow Examples"]
+    subgraph ExternalDependencies["☁️ External Dependencies"]
         
-        subgraph Flow1["Example: Code Analysis"]
-            F1_1["User Request"] --> F1_2["Copilot Plans"]
-            F1_2 --> F1_3["MCP Reads Files"]
-            F1_3 --> F1_4["DataMiner Extracts"]
-            F1_4 --> F1_5["LLM Analyzes"]
-            F1_5 --> F1_6["Response"]
-        end
+        AIProviders["AI Providers<br/>• Anthropic API<br/>• OpenAI API<br/>• Model selection"]
         
-        subgraph Flow2["Example: Document Generation"]
-            F2_1["User Query"] --> F2_2["DataMiner Gathers"]
-            F2_2 --> F2_3["Copilot Reasons"]
-            F2_3 --> F2_4["LLM Generates"]
-            F2_4 --> F2_5["MCP Writes"]
-            F2_5 --> F2_6["Output"]
-        end
+        PythonPackages["Python Packages<br/>• Pydantic<br/>• Instructor<br/>• Async libraries"]
+        
+        FileSystem["File System<br/>• Local storage<br/>• Path operations<br/>• File I/O"]
     end
     
-    %% Main Connections
-    Developer --> AppController
-    API --> AppController
-    CLI --> AppController
+    subgraph UsagePatterns["💡 Common Usage Patterns"]
+        
+        Pattern1["Code Analysis<br/>1. User request → Copilot<br/>2. Copilot plans → MCP reads<br/>3. DataMiner extracts → LLM processes<br/>4. Results returned"]
+        
+        Pattern2["Document Processing<br/>1. Load document → DataMiner<br/>2. Select strategy → LLM extracts<br/>3. Validate schema → Output"]
+        
+        Pattern3["Interactive Assistant<br/>1. User query → Copilot<br/>2. Multi-hypothesis → Tool selection<br/>3. Execute tools → Response"]
+    end
     
-    AppController --> ModuleRouter
-    ConfigManager --> ModuleRouter
+    %% User Flow
+    PythonAPI --> CoreModules
+    FutureCLI -.->|Planned| CoreModules
+    FutureREST -.->|Planned| CoreModules
     
-    ModuleRouter --> LLM
-    ModuleRouter --> MCP
-    ModuleRouter --> Copilot
-    ModuleRouter --> DataMiner
+    %% Module Dependencies
+    CopilotEngine --> LLMEngine
+    CopilotEngine --> MCPEngine
+    DataMinerEngine --> LLMEngine
+    DataMinerEngine --> CopilotEngine
     
-    %% Module Interactions
-    Copilot -.->|Uses| LLM
-    Copilot -.->|Uses| MCP
-    DataMiner -.->|Uses| LLM
-    DataMiner -.->|Uses| MCP
+    %% Infrastructure Usage
+    CoreModules --> TypeSystem
+    CoreModules --> ConfigManagement
+    CoreModules --> ErrorHandling
+    CoreModules --> Logging
     
-    %% Shared Services
-    LLM --> Cache
-    MCP --> Storage
-    Copilot --> Cache
-    DataMiner --> Storage
+    %% External Dependencies
+    LLMEngine --> AIProviders
+    CoreModules --> PythonPackages
+    MCPEngine --> FileSystem
     
-    AppController --> Auth
-    AppController --> RateLimit
+    %% Integration Examples
+    CopilotUsesLLM -.-> Pattern1
+    CopilotUsesMCP -.-> Pattern1
+    DataMinerUsesLLM -.-> Pattern2
+    DataMinerUsesCopilot -.-> Pattern3
     
-    %% External Connections
-    LLM --> AIProviders
-    MCP --> FileSystem
-    DataMiner --> Databases
+    style UserInterface fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px
+    style CoreModules fill:#1e453f,stroke:#10b981,stroke-width:3px
+    style ModuleIntegration fill:#312e4f,stroke:#8b5cf6,stroke-width:2px
+    style CommonInfrastructure fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    style ExternalDependencies fill:#2d1b47,stroke:#ec4899,stroke-width:2px
+    style UsagePatterns fill:#374151,stroke:#6b7280,stroke-width:2px
     
-    %% Observability
-    LLM -.->|Logs| Logging
-    MCP -.->|Metrics| Metrics
-    Copilot -.->|Traces| Tracing
-    DataMiner -.->|Logs| Logging
+    %% Implementation Status
+    subgraph Legend["📌 System Status"]
+        CoreComplete["✅ Core: All 4 modules fully implemented"]
+        IntegrationWorking["🔗 Integration: Modules work together seamlessly"]
+        FutureExpansion["🔮 Future: CLI, REST API, Additional MCP servers"]
+    end
     
-    %% Event Bus
-    EventBus -.->|Events| LLM
-    EventBus -.->|Events| MCP
-    EventBus -.->|Events| Copilot
-    EventBus -.->|Events| DataMiner
-    
-    style UserLayer fill:#1e293b,stroke:#3b82f6,stroke-width:2px
-    style ApplicationLayer fill:#1e3a5f,stroke:#60a5fa,stroke-width:2px
-    style CoreModules fill:#312e4f,stroke:#8b5cf6,stroke-width:3px
-    style SharedServices fill:#1e453f,stroke:#10b981,stroke-width:2px
-    style ExternalServices fill:#3f2e1e,stroke:#f59e0b,stroke-width:2px
-    style DataFlow fill:#2d1b47,stroke:#ec4899,stroke-width:2px
+    style Legend fill:#1a1a2e,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5
