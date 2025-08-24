@@ -5,6 +5,7 @@ An intelligent AI assistant module built with LangGraph, featuring multi-hypothe
 ## Features
 
 ### Core Capabilities
+- **Structured LLM Outputs**: Leverages Instructor for type-safe, validated responses
 - **Multi-Hypothesis Thinking**: Generates 3-5 interpretations for each user request
 - **Dual-Speed Processing**: Fast path for simple queries, slow path for complex reasoning
 - **Confidence Tracking**: Three-tier confidence system guides decision-making
@@ -15,11 +16,11 @@ An intelligent AI assistant module built with LangGraph, featuring multi-hypothe
 ### Key Components
 
 #### 1. Cognitive Nodes (`nodes/cognitive.py`)
-Handles the thinking process:
-- **Understanding**: Analyzes user intent with multiple hypotheses
-- **Planning**: Creates actionable plans based on understanding
-- **Reasoning**: Decides on next steps and adjusts plans
-- **Reflection**: Learns from failures and improves responses
+Handles the thinking process with **structured outputs via Instructor**:
+- **Understanding**: Analyzes user intent with multiple hypotheses (uses `MultiHypothesisOutput`)
+- **Planning**: Creates actionable plans based on understanding (uses `PlanningOutput`)
+- **Reasoning**: Decides on next steps and adjusts plans (uses `ReasoningOutput`)
+- **Reflection**: Learns from failures and improves responses (uses `ReflectionOutput`)
 
 #### 2. Workflow Orchestration (`core/workflow.py`)
 LangGraph-based workflow with:
@@ -29,9 +30,9 @@ LangGraph-based workflow with:
 - Configurable recursion limits
 
 #### 3. Tool Router (`tools/router.py`)
-MCP-based tool execution:
+MCP-based tool execution with **Instructor-powered selection**:
 - Dynamic tool discovery from MCP servers
-- LLM-guided tool selection
+- LLM-guided tool selection (uses `ToolSelectionOutput` and `ToolExecutionPlan`)
 - Argument normalization and validation
 - Error handling with graceful degradation
 
@@ -110,6 +111,40 @@ copilot = InteractiveCopilot()
 await copilot.start()
 ```
 
+## Instructor Integration
+
+The copilot module extensively uses **Instructor** for structured, type-safe LLM outputs:
+
+### Structured Output Models
+
+```python
+# Multi-hypothesis generation
+class MultiHypothesisOutput(BaseModel):
+    hypotheses: List[Hypothesis]  # 3-5 different interpretations
+    primary_intent: str
+    confidence: float
+    
+# Planning output
+class PlanningOutput(BaseModel):
+    goal: str
+    steps: List[str]
+    tool_requirements: List[str]
+    estimated_complexity: float
+    
+# Tool selection
+class ToolSelectionOutput(BaseModel):
+    tool_name: str
+    server_name: str
+    arguments: Dict[str, Any]
+    reasoning: str
+```
+
+### Benefits
+- **Type Safety**: All LLM responses are validated against Pydantic models
+- **Consistency**: Structured outputs ensure consistent response formats
+- **Error Handling**: Automatic validation and retry on schema mismatches
+- **Better Reasoning**: Forces LLM to structure its thinking process
+
 ## Confidence System
 
 The module uses a three-tier confidence system:
@@ -179,8 +214,9 @@ python test_memory_simple.py
 ## Dependencies
 
 - `langgraph`: Workflow orchestration
-- `pydantic`: Data validation
-- `src.llm`: LLM client management
+- `pydantic`: Data validation and structured outputs
+- `instructor`: Type-safe LLM responses
+- `src.llm`: LLM client management (with Instructor integration)
 - `src.mcp`: Tool protocol implementation
 
 ## Production Readiness
