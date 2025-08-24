@@ -11,7 +11,7 @@ from .core.types import (
     CompletionResponse,
     ClientStatus,
 )
-from .core.config import PoolConfig, ConfigManager, config_manager
+from .core.config import PoolConfig, ConfigManager, config_manager, InstructorConfig
 from .core.exceptions import (
     LLMException,
     LLMProviderError,
@@ -39,6 +39,7 @@ __all__ = [
     "PoolConfig",
     "ConfigManager",
     "config_manager",
+    "InstructorConfig",
     # Exceptions
     "LLMException",
     "LLMProviderError",

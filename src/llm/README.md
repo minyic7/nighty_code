@@ -1,232 +1,283 @@
 # LLM Module
 
-High-performance LLM client with connection pooling, rate limiting, and middleware support.
+A production-ready Python module for interacting with multiple Large Language Model providers with advanced features like structured output, streaming, middleware, and connection pooling.
+
+## Features
+
+### 🚀 Core Capabilities
+- **Multi-Provider Support**: Seamlessly switch between Anthropic Claude and OpenAI GPT models
+- **Structured Output**: Use Pydantic models with Instructor for type-safe responses
+- **Streaming**: Real-time token streaming for responsive applications
+- **Connection Pooling**: Efficient resource management for high-throughput scenarios
+- **Async/Await**: Full async support for non-blocking operations
+
+### 🛡️ Middleware System
+- **Retry Logic**: Automatic retries with exponential backoff
+- **Rate Limiting**: Prevent API throttling with configurable limits
+- **Token Management**: Track and control token usage
+- **Metrics Collection**: Monitor performance and usage statistics
+- **Request/Response Logging**: Comprehensive logging for debugging
+
+### 🎯 Advanced Features
+- **Multi-turn Conversations**: Maintain context across interactions
+- **Temperature Control**: Fine-tune response creativity
+- **Custom Models**: Support for specific model versions
+- **Error Handling**: Robust exception handling with detailed error messages
+- **Provider Fallback**: Automatic fallback to alternative providers
+
+## Installation
+
+```bash
+# Install required dependencies
+pip install anthropic openai instructor pydantic tiktoken
+```
 
 ## Quick Start
 
 ```python
-from llm import get_llm_manager, LLMProvider, Message, MessageRole
+import asyncio
+from src.llm import LLMManager, Message, MessageRole, LLMProvider
 
 async def main():
-    manager = await get_llm_manager()
+    # Initialize manager
+    manager = LLMManager()
+    
+    # Get client for specific provider
     client = manager.get_client(LLMProvider.ANTHROPIC)
     
-    messages = [Message(MessageRole.USER, "Hello, world!")]
-    response = await client.complete(messages)
-    print(response.content)
+    # Create messages
+    messages = [
+        Message(role=MessageRole.USER, content="What is Python?")
+    ]
     
-    await manager.close()
+    # Get completion
+    response = await client.complete(messages=messages)
+    print(response.content)
+
+asyncio.run(main())
 ```
 
-## Features
+## Structured Output Example
 
-- **Connection Pooling**: Multiple API keys with automatic load balancing
-- **Rate Limiting**: Token-accurate limiting using native provider APIs  
-- **Middleware Stack**: Logging, metrics, retry, and rate limit middleware
-- **Async Support**: Built on asyncio for maximum concurrency
-- **Multi-Provider**: Unified interface for Anthropic, OpenAI, etc.
+```python
+from pydantic import BaseModel, Field
+from typing import List
+
+class CodeAnalysis(BaseModel):
+    language: str = Field(description="Programming language")
+    functions: List[str] = Field(description="Function names")
+    complexity: str = Field(description="Code complexity level")
+    suggestions: List[str] = Field(description="Improvement suggestions")
+
+async def analyze_code():
+    manager = LLMManager()
+    client = manager.get_client(LLMProvider.ANTHROPIC)
+    
+    code = "def hello(): print('Hello, World!')"
+    
+    messages = [
+        Message(
+            role=MessageRole.USER,
+            content=f"Analyze this code: {code}"
+        )
+    ]
+    
+    # Get structured response
+    analysis = await client.complete(
+        messages=messages,
+        response_model=CodeAnalysis
+    )
+    
+    print(f"Language: {analysis.language}")
+    print(f"Functions: {analysis.functions}")
+```
+
+## Streaming Example
+
+```python
+async def stream_story():
+    manager = LLMManager()
+    client = manager.get_client(LLMProvider.ANTHROPIC)
+    
+    messages = [
+        Message(
+            role=MessageRole.USER,
+            content="Write a short story about AI"
+        )
+    ]
+    
+    # Stream response token by token
+    async for chunk in client.stream(messages=messages):
+        if chunk.content:
+            print(chunk.content, end="", flush=True)
+```
 
 ## Configuration
 
-Edit `config/llm.yaml`:
-
-```yaml
-providers:
-  anthropic:
-    api_keys: [key1, key2, ...]  # Multiple keys for load balancing
-    models: [claude-3-5-haiku-20241022]
-    rate_limits:
-      - requests_per_minute: 12
-        input_tokens_per_minute: 5000
-        output_tokens_per_minute: 2000
-
-pool:
-  max_size: 4  # Match number of API keys
-  acquire_timeout: 30.0
-```
-
-## Basic Use Cases
-
-### Simple Completion
 ```python
-messages = [Message(MessageRole.USER, "Explain quantum computing")]
-response = await client.complete(messages, max_tokens=200)
-```
+from src.llm import LLMConfig
 
-### Streaming Response
-```python
-messages = [Message(MessageRole.USER, "Write a story")]
-async for chunk in client.stream_complete(messages):
-    print(chunk, end='', flush=True)
-```
-
-### Conversation with History
-```python
-from llm import SessionManager
-
-session = SessionManager()
-session.add_message(MessageRole.USER, "My name is Alice")
-response = await client.complete(session.get_messages())
-session.add_message(MessageRole.ASSISTANT, response.content)
-
-# Later in conversation
-session.add_message(MessageRole.USER, "What's my name?")
-response = await client.complete(session.get_messages())
-# Response will remember "Alice"
-```
-
-## Advanced Use Cases
-
-### Custom System Prompts
-```python
-messages = [
-    Message(MessageRole.SYSTEM, "You are a helpful coding assistant"),
-    Message(MessageRole.USER, "Write a Python function to sort a list")
-]
-response = await client.complete(messages)
-```
-
-### Parallel Processing with Pool
-```python
-async def process_batch(prompts):
-    manager = await get_llm_manager()
-    client = manager.get_client(LLMProvider.ANTHROPIC)
+config = LLMConfig(
+    # Retry settings
+    retry_max_attempts=3,
+    retry_initial_delay=1.0,
+    retry_max_delay=10.0,
     
-    tasks = []
-    for prompt in prompts:
-        messages = [Message(MessageRole.USER, prompt)]
-        tasks.append(client.complete(messages))
+    # Rate limiting
+    rate_limit_requests_per_minute=60,
     
-    results = await asyncio.gather(*tasks)
-    return [r.content for r in results]
+    # Connection pool
+    pool_size=10,
+    pool_timeout=30.0,
+    
+    # Logging and metrics
+    enable_logging=True,
+    enable_metrics=True,
+    
+    # Token limits
+    max_tokens_per_request=4000,
+    max_tokens_per_minute=100000
+)
 
-# Process 50 prompts in parallel
-prompts = [f"Question {i}" for i in range(50)]
-answers = await process_batch(prompts)
+manager = LLMManager(config=config)
 ```
 
-### Monitor Pool Status
+## Middleware
+
+The module includes several middleware components:
+
+### Retry Middleware
+Automatically retries failed requests with exponential backoff:
 ```python
-status = manager.get_status(LLMProvider.ANTHROPIC)
-print(f"Available clients: {status['available_clients']}/{status['total_clients']}")
-print(f"Queue size: {status['queue_size']}")
-
-# Check individual client status
-for client_status in status['client_statuses']:
-    if client_status['rate_limit_status']:
-        print(f"Client {client_status['client_id']}:")
-        print(f"  Tokens remaining: {client_status['rate_limit_status']['tokens_remaining']}")
+config = LLMConfig(
+    retry_max_attempts=3,
+    retry_initial_delay=1.0,
+    retry_exponential_base=2.0
+)
 ```
 
-### Rate Limit Handling
+### Rate Limiter
+Prevents API throttling:
 ```python
-from llm import LLMRateLimitError
-
-try:
-    response = await client.complete(messages)
-except LLMRateLimitError as e:
-    print(f"Rate limited: {e}")
-    # The pool automatically queues requests when rate limited
-    # No manual retry needed
+config = LLMConfig(
+    rate_limit_requests_per_minute=60,
+    rate_limit_tokens_per_minute=100000
+)
 ```
 
-### Custom Middleware
+### Metrics Collector
+Track usage and performance:
 ```python
-from llm.middleware.base import Middleware
+manager = LLMManager(config=LLMConfig(enable_metrics=True))
 
-class CustomMiddleware(Middleware):
-    async def process_request(self, request, context):
-        # Add custom headers, logging, etc.
-        context['custom_data'] = 'value'
-        return request
-    
-    async def process_response(self, response, context):
-        # Process response
-        response.metadata['custom'] = context.get('custom_data')
-        return response
-
-# Add to provider
-provider.middleware_chain.add(CustomMiddleware())
+# Get metrics
+metrics = manager.get_metrics()
+print(f"Total requests: {metrics['total_requests']}")
+print(f"Average latency: {metrics['average_latency_ms']}ms")
 ```
-
-### Load Testing
-```python
-async def load_test(num_requests=100):
-    manager = await get_llm_manager()
-    client = manager.get_client(LLMProvider.ANTHROPIC)
-    
-    start = time.time()
-    tasks = []
-    
-    for i in range(num_requests):
-        messages = [Message(MessageRole.USER, f"Test {i}")]
-        tasks.append(client.complete(messages, max_tokens=10))
-    
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    
-    success = sum(1 for r in results if not isinstance(r, Exception))
-    duration = time.time() - start
-    
-    print(f"Completed {success}/{num_requests} in {duration:.2f}s")
-    print(f"Throughput: {success/duration:.2f} req/s")
-```
-
-### Export Metrics
-```python
-# After running requests
-pool = manager._pools[LLMProvider.ANTHROPIC]
-for client in pool._clients:
-    metrics = client.middleware_chain.get_middleware(MetricsMiddleware).get_metrics()
-    print(f"Client metrics:")
-    print(f"  Total requests: {metrics['total_requests']}")
-    print(f"  Avg latency: {metrics['avg_latency']:.2f}ms")
-    print(f"  Success rate: {metrics['success_rate']:.1%}")
-```
-
-## Architecture
-
-```
-Application → LLMManager → ConnectionPool → Middleware → Provider
-                  ↓             ↓               ↓
-              (Singleton)  (Load Balance)  (Log/Retry/Rate)
-```
-
-## Middleware Stack
-
-1. **LoggingMiddleware**: Request/response logging
-2. **MetricsMiddleware**: Performance tracking  
-3. **RetryMiddleware**: Exponential backoff for failures
-4. **RateLimitMiddleware**: Token-accurate rate limiting
 
 ## Error Handling
 
-- `LLMRateLimitError`: Rate limit exceeded (auto-queued)
-- `LLMPoolExhaustedError`: No clients available  
-- `LLMTimeoutError`: Request timeout
-- `LLMAuthenticationError`: Invalid API key
-- `LLMProviderError`: Provider-specific errors
+```python
+from src.llm import LLMException, RateLimitError, AuthenticationError
+
+try:
+    response = await client.complete(messages=messages)
+except RateLimitError as e:
+    print(f"Rate limited: {e}")
+    # Wait and retry
+except AuthenticationError as e:
+    print(f"Auth failed: {e}")
+    # Check API keys
+except LLMException as e:
+    print(f"LLM error: {e}")
+    # Handle general errors
+```
+
+## Environment Variables
+
+Set your API keys:
+```bash
+export ANTHROPIC_API_KEY="your-anthropic-key"
+export OPENAI_API_KEY="your-openai-key"
+```
+
+## Advanced Usage
+
+### Multi-turn Conversations
+```python
+messages = []
+
+# System message
+messages.append(Message(
+    role=MessageRole.SYSTEM,
+    content="You are a helpful assistant"
+))
+
+# Conversation loop
+for user_input in ["Hello", "What's Python?", "Show example"]:
+    messages.append(Message(role=MessageRole.USER, content=user_input))
+    
+    response = await client.complete(messages=messages)
+    print(f"Assistant: {response.content}")
+    
+    messages.append(Message(
+        role=MessageRole.ASSISTANT,
+        content=response.content
+    ))
+```
+
+### Provider Fallback
+```python
+async def with_fallback():
+    manager = LLMManager()
+    
+    providers = [LLMProvider.ANTHROPIC, LLMProvider.OPENAI]
+    
+    for provider in providers:
+        try:
+            client = manager.get_client(provider)
+            response = await client.complete(messages=messages)
+            return response
+        except LLMException:
+            continue
+    
+    raise Exception("All providers failed")
+```
+
+## Module Structure
+
+```
+src/llm/
+├── __init__.py           # Main exports
+├── core/
+│   ├── client.py         # Base client implementation
+│   ├── config.py         # Configuration classes
+│   ├── exceptions.py     # Custom exceptions
+│   ├── manager.py        # LLM manager
+│   ├── pool.py          # Connection pooling
+│   └── types.py         # Type definitions
+├── middleware/
+│   ├── base.py          # Middleware base class
+│   ├── logging.py       # Logging middleware
+│   ├── metrics.py       # Metrics collection
+│   ├── rate_limiter.py  # Rate limiting
+│   ├── retry.py         # Retry logic
+│   └── token_calculator.py # Token counting
+└── providers/
+    ├── anthropic.py     # Anthropic Claude provider
+    ├── base.py          # Provider base class
+    └── openai.py        # OpenAI GPT provider
+```
 
 ## Performance Tips
 
-1. Use multiple API keys for higher throughput
-2. Set `pool.max_size` = number of API keys
-3. Adjust `acquire_timeout` based on load
-4. Enable connection reuse with proper `idle_timeout`
-5. Monitor metrics to optimize rate limits
-
-## Testing
-
-```bash
-# Test basic functionality
-python test_llm.py
-
-# Interactive session
-python interactive_llm.py
-
-# Load testing
-python test_pool_load.py
-```
+1. **Use Connection Pooling**: For high-throughput applications
+2. **Enable Caching**: Cache frequent requests
+3. **Batch Requests**: Process multiple items together
+4. **Stream Long Responses**: For better UX
+5. **Monitor Metrics**: Track performance and costs
 
 ## License
 
-MIT
+MIT License - See LICENSE file for details

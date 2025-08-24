@@ -1,232 +1,381 @@
 # MCP (Model Context Protocol) Module
 
-A clean, production-ready module for implementing MCP tools and servers. Designed for local Python API usage with future support for MCP protocol communication.
+A comprehensive Python implementation of the Model Context Protocol for seamless tool integration, filesystem operations, and server/client communication.
 
-## Architecture Overview
+## Features
 
+### 🛠️ Tool Management
+- **Dynamic Tool Registration**: Register and discover tools at runtime
+- **Tool Execution**: Safe execution with parameter validation
+- **Tool Routing**: Intelligent routing to appropriate tools
+- **Custom Tools**: Easy creation of custom tool implementations
+
+### 📁 Filesystem Operations
+- **File Management**: Read, write, move, delete files safely
+- **Directory Operations**: List, create, search directories
+- **Pattern Matching**: Glob and regex pattern support
+- **Grep Search**: Fast code searching with ripgrep integration
+- **Access Control**: Configurable directory permissions
+
+### 🔌 Server/Client Architecture
+- **Multiple Servers**: Support for various server types
+- **Resource Discovery**: Automatic resource enumeration
+- **Prompt Templates**: Reusable prompt management
+- **Batch Operations**: Efficient bulk processing
+
+## Installation
+
+```bash
+# Install required dependencies
+pip install aiofiles pathlib typing-extensions
 ```
-src/mcp/
-├── core/           # Base abstractions and types
-│   ├── base_server.py    # Server base class
-│   ├── base_client.py    # Client base class
-│   ├── types.py          # Data structures
-│   └── exceptions.py     # Custom exceptions
-├── servers/        # MCP server implementations
-│   └── filesystem.py     # File operations server
-├── clients/        # Future: MCP client implementations
-└── utils/          # Future: Utility functions
-```
 
-## Design Principles
-
-1. **Clean Separation**: MCP module only handles tools, not LLM orchestration
-2. **Local-First**: Optimized for direct Python API usage (no protocol overhead)
-3. **Type-Safe**: Strong typing with dataclasses and Pydantic
-4. **Secure**: Built-in path validation and size limits
-5. **Extensible**: Easy to add new servers and tools
-
-## Core Components
-
-### BaseMCPServer
-- Abstract base for all MCP servers
-- Provides tool registration and execution
-- Supports both decorator and direct registration
-
-### FilesystemServer
-- Secure file operations with path validation
-- Tools: `read_file`, `list_directory`, `search_pattern`, `search_keyword`
-- Configurable root path and file size limits
-
-## Usage Examples
-
-### 1. Basic File Operations
+## Quick Start
 
 ```python
-from mcp import FilesystemServer, ToolCall
+import asyncio
+from pathlib import Path
+from src.mcp import FilesystemServer, ToolCall
 
-# Initialize server with project root
-fs_server = FilesystemServer(root_path="/path/to/project")
-await fs_server.initialize()
-
-# Read a file
-result = await fs_server.call_tool(
-    ToolCall(
+async def main():
+    # Initialize filesystem server
+    server = FilesystemServer(
+        allowed_directories=[Path.cwd()],
+        read_only=False
+    )
+    
+    await server.initialize()
+    
+    # List available tools
+    tools = await server.list_tools()
+    print(f"Available tools: {[tool.name for tool in tools]}")
+    
+    # Read a file
+    result = await server.call_tool(ToolCall(
         name="read_file",
-        arguments={"path": "src/main.py"}
-    )
-)
-print(result.content[0].text)
+        arguments={"path": "README.md"}
+    ))
+    
+    if result.is_success:
+        print(f"File content: {result.content[0].text[:100]}...")
+    
+    await server.cleanup()
 
-# List directory contents
-result = await fs_server.call_tool(
-    ToolCall(
+asyncio.run(main())
+```
+
+## Filesystem Operations
+
+### Reading Files
+```python
+# Read text file
+read_call = ToolCall(
+    name="read_file",
+    arguments={"path": "example.txt"}
+)
+result = await server.call_tool(read_call)
+
+# Read with line limits
+read_call = ToolCall(
+    name="read_file",
+    arguments={
+        "path": "large_file.txt",
+        "start_line": 100,
+        "end_line": 200
+    }
+)
+```
+
+### Writing Files
+```python
+# Write new file
+write_call = ToolCall(
+    name="write_file",
+    arguments={
+        "path": "output.txt",
+        "content": "Hello, MCP!"
+    }
+)
+
+# Append to existing file
+append_call = ToolCall(
+    name="append_to_file",
+    arguments={
+        "path": "log.txt",
+        "content": "New log entry\n"
+    }
+)
+```
+
+### Searching Files
+```python
+# Search by pattern
+search_call = ToolCall(
+    name="search_files",
+    arguments={
+        "pattern": "*.py",
+        "directory": "src",
+        "recursive": True
+    }
+)
+
+# Grep for patterns
+grep_call = ToolCall(
+    name="grep",
+    arguments={
+        "pattern": "class \\w+",
+        "directory": "src",
+        "file_pattern": "*.py",
+        "max_results": 20
+    }
+)
+```
+
+## Advanced Server Configuration
+
+```python
+from src.mcp import FilesystemServer
+from pathlib import Path
+
+server = FilesystemServer(
+    # Access control
+    allowed_directories=[
+        Path.cwd() / "data",
+        Path.cwd() / "docs"
+    ],
+    read_only=False,
+    
+    # File handling
+    max_file_size=10 * 1024 * 1024,  # 10MB limit
+    enable_hidden_files=False,
+    
+    # Features
+    enable_grep=True,
+    enable_diff=True,
+    
+    # Performance
+    cache_enabled=True,
+    cache_ttl=300  # 5 minutes
+)
+```
+
+## Resource Management
+
+```python
+# List available resources
+resources = await server.list_resources()
+for resource in resources:
+    print(f"{resource.name}: {resource.uri}")
+    if resource.description:
+        print(f"  {resource.description}")
+
+# Read specific resource
+content = await server.read_resource(resources[0].uri)
+print(f"Resource content: {content}")
+```
+
+## Prompt Templates
+
+```python
+# List available prompts
+prompts = await server.list_prompts()
+for prompt in prompts:
+    print(f"{prompt.name}: {prompt.description}")
+    if prompt.arguments:
+        print(f"  Args: {[arg.name for arg in prompt.arguments]}")
+
+# Get prompt with arguments
+result = await server.get_prompt(
+    "code_review",
+    arguments={
+        "language": "python",
+        "focus": "performance"
+    }
+)
+```
+
+## MCP Manager
+
+Manage multiple servers simultaneously:
+
+```python
+from src.mcp import MCPManager, FilesystemServer
+
+manager = MCPManager()
+
+# Register multiple servers
+fs_server = FilesystemServer(allowed_directories=[Path.cwd()])
+await manager.register_server("filesystem", fs_server)
+
+# Custom server example
+# await manager.register_server("database", DatabaseServer())
+# await manager.register_server("api", APIServer())
+
+# Execute tools on specific servers
+result = await manager.execute_tool(
+    server_name="filesystem",
+    tool_call=ToolCall(
         name="list_directory",
-        arguments={"path": "src", "recursive": True}
-    )
-)
-print(result.content[0].text)
-```
-
-### 2. Search Operations
-
-```python
-# Search for Python files
-result = await fs_server.call_tool(
-    ToolCall(
-        name="search_pattern",
-        arguments={"pattern": "**/*.py", "path": "src"}
+        arguments={"path": "."}
     )
 )
 
-# Search for keyword in files
-result = await fs_server.call_tool(
-    ToolCall(
-        name="search_keyword",
-        arguments={
-            "keyword": "async def",
-            "path": "src",
-            "extensions": [".py"],
-            "max_results": 50
-        }
-    )
-)
+# Discover all available tools
+all_tools = await manager.discover_tools()
+for server_name, tools in all_tools.items():
+    print(f"{server_name}: {len(tools)} tools available")
 ```
 
-### 3. Creating Custom MCP Server
+## Creating Custom Tools
 
 ```python
-from mcp import BaseMCPServer, ToolDefinition, TextContent
+from src.mcp.core import BaseTool, ToolResult
 
-class DatabaseServer(BaseMCPServer):
-    def __init__(self, connection_string: str):
-        super().__init__("database-server", "1.0.0")
-        self.connection_string = connection_string
-    
-    async def _register_tools(self):
-        self.register_tool(ToolDefinition(
-            name="query",
-            description="Execute SQL query",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "sql": {"type": "string"}
-                },
-                "required": ["sql"]
-            },
-            handler=self._execute_query
-        ))
-    
-    async def _execute_query(self, sql: str):
-        # Your database logic here
-        result = await self.db.execute(sql)
-        return TextContent(text=str(result))
-```
-
-### 4. Integration with Copilot/Application
-
-```python
-# In your copilot module (not in MCP)
-from mcp import FilesystemServer, ToolCall
-from llm import get_llm_manager, Message, MessageRole
-
-class CopilotOrchestrator:
+class CustomTool(BaseTool):
     def __init__(self):
-        self.fs_server = FilesystemServer()
-        self.llm_manager = None
-        
-    async def initialize(self):
-        await self.fs_server.initialize()
-        self.llm_manager = await get_llm_manager()
+        super().__init__(
+            name="custom_tool",
+            description="My custom tool",
+            parameters={
+                "input": {"type": "string", "required": True},
+                "option": {"type": "boolean", "default": False}
+            }
+        )
     
-    async def process_with_tools(self, user_input: str):
-        # Get available tools
-        tools = self.fs_server.list_tools()
+    async def execute(self, arguments: Dict[str, Any]) -> ToolResult:
+        input_text = arguments.get("input")
+        option = arguments.get("option", False)
         
-        # Format for LLM
-        tool_descriptions = self._format_tools_for_llm(tools)
+        # Tool logic here
+        result = f"Processed: {input_text} (option={option})"
         
-        # Call LLM
-        client = self.llm_manager.get_client()
-        messages = [
-            Message(MessageRole.SYSTEM, f"You have these tools: {tool_descriptions}"),
-            Message(MessageRole.USER, user_input)
-        ]
-        response = await client.complete(messages)
-        
-        # Parse and execute tool calls
-        if self._has_tool_call(response.content):
-            tool_call = self._parse_tool_call(response.content)
-            result = await self.fs_server.call_tool(tool_call)
-            # Continue conversation with result...
+        return ToolResult(
+            success=True,
+            content=[{"type": "text", "text": result}]
+        )
 ```
 
-## Security Features
+## Batch Operations
 
-1. **Path Validation**: All paths are validated to stay within root directory
-2. **Size Limits**: Configurable maximum file size (default: 10MB)
-3. **Extension Filtering**: Optional allowed extensions list
-4. **Error Handling**: Comprehensive error messages without exposing system details
+```python
+# Batch file operations
+files_to_create = [
+    ("file1.txt", "Content 1"),
+    ("file2.txt", "Content 2"),
+    ("file3.txt", "Content 3"),
+]
+
+for filepath, content in files_to_create:
+    await server.call_tool(ToolCall(
+        name="write_file",
+        arguments={"path": filepath, "content": content}
+    ))
+
+# Batch read
+contents = []
+for filepath, _ in files_to_create:
+    result = await server.call_tool(ToolCall(
+        name="read_file",
+        arguments={"path": filepath}
+    ))
+    if result.is_success:
+        contents.append(result.content[0].text)
+```
 
 ## Error Handling
 
 ```python
-from mcp import MCPValidationError, MCPToolNotFoundError
+from src.mcp import MCPException, ToolNotFoundError, PermissionError
 
 try:
-    result = await fs_server.call_tool(tool_call)
-except MCPValidationError as e:
-    print(f"Invalid input: {e}")
-except MCPToolNotFoundError as e:
+    result = await server.call_tool(tool_call)
+except ToolNotFoundError as e:
     print(f"Tool not found: {e}")
+except PermissionError as e:
+    print(f"Permission denied: {e}")
+except MCPException as e:
+    print(f"MCP error: {e}")
 ```
 
-## Available Tools
+## Security Features
 
-### FilesystemServer Tools
+### Access Control
+- Restrict operations to specific directories
+- Read-only mode for safe exploration
+- File size limits to prevent abuse
+- Hidden file filtering
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `read_file` | Read file contents | `path`, `encoding` |
-| `list_directory` | List directory contents | `path`, `recursive`, `include_hidden` |
-| `search_pattern` | Find files by glob pattern | `pattern`, `path` |
-| `search_keyword` | Search text in files | `keyword`, `path`, `extensions`, `use_regex`, `max_results` |
+### Safe Execution
+- Parameter validation
+- Path traversal prevention
+- Resource limits
+- Timeout controls
 
-## Best Practices
+## Module Structure
 
-1. **Initialize Once**: Create servers at application startup
-2. **Use Type Hints**: Leverage the provided types for safety
-3. **Handle Errors**: Always wrap tool calls in try-except
-4. **Validate Input**: Use the built-in validation features
-5. **Keep It Simple**: MCP handles tools, your app handles orchestration
+```
+src/mcp/
+├── __init__.py           # Main exports
+├── core/
+│   ├── base_client.py    # Base client implementation
+│   ├── base_server.py    # Base server implementation
+│   ├── exceptions.py     # Custom exceptions
+│   ├── manager.py        # MCP manager
+│   └── types.py          # Type definitions
+├── servers/
+│   └── filesystem.py     # Filesystem server
+├── clients/              # Client implementations
+└── utils/               # Utility functions
+```
 
-## Future Enhancements
+## Performance Optimization
 
-- [ ] Remote MCP server support (stdio/SSE)
-- [ ] Additional servers (Database, API, Shell)
-- [ ] Context-aware search
-- [ ] File write operations (with safety checks)
-- [ ] Caching layer for frequently accessed files
+1. **Enable Caching**: For frequently accessed files
+2. **Use Batch Operations**: Process multiple items together
+3. **Limit Search Scope**: Use specific directories and patterns
+4. **Async Operations**: Leverage async/await for concurrency
+5. **Resource Limits**: Set appropriate file size and result limits
 
-## Testing
+## Common Use Cases
 
+### Code Analysis
 ```python
-# Example test
-import pytest
-from mcp import FilesystemServer, ToolCall
+# Find all Python classes
+result = await server.call_tool(ToolCall(
+    name="grep",
+    arguments={
+        "pattern": "^class \\w+",
+        "directory": "src",
+        "file_pattern": "*.py"
+    }
+))
+```
 
-@pytest.mark.asyncio
-async def test_read_file():
-    server = FilesystemServer(root_path="./test_data")
-    await server.initialize()
-    
-    result = await server.call_tool(
-        ToolCall(name="read_file", arguments={"path": "test.txt"})
-    )
-    
-    assert result.status == "success"
-    assert "expected content" in result.content[0].text
+### File Synchronization
+```python
+# Compare files
+diff_result = await server.call_tool(ToolCall(
+    name="diff_files",
+    arguments={
+        "file1": "version1.txt",
+        "file2": "version2.txt",
+        "context_lines": 3
+    }
+))
+```
+
+### Documentation Generation
+```python
+# List all markdown files
+docs = await server.call_tool(ToolCall(
+    name="search_files",
+    arguments={
+        "pattern": "*.md",
+        "directory": "docs"
+    }
+))
 ```
 
 ## License
 
-Part of the nighty_code project.
+MIT License - See LICENSE file for details

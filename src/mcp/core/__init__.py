@@ -3,6 +3,7 @@
 
 from .base_server import BaseMCPServer, ToolDefinition, ServerCapabilities
 from .base_client import BaseMCPClient, MCPClientConfig
+from .manager import MCPManager
 from .types import (
     MCPRequest,
     MCPResponse,
@@ -24,6 +25,7 @@ __all__ = [
     # Base classes
     "BaseMCPServer",
     "BaseMCPClient",
+    "MCPManager",
     "ToolDefinition",
     "ServerCapabilities",
     "MCPClientConfig",

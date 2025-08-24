@@ -1,0 +1,109 @@
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C3AED', 'lineColor':'#F59E0B', 'secondaryColor':'#6366F1', 'tertiaryColor':'#10B981'}}}%%
+
+graph TB
+    %% Copilot Module - Brain-like Cognitive Architecture
+    
+    subgraph Input["🎤 Sensory Input"]
+        UserQuery[/"User Query<br/>Natural Language"/]
+        Context[/"Context<br/>History & Environment"/]
+        Signals[/"Signals<br/>Events & Triggers"/]
+    end
+    
+    subgraph CerebralCortex["🧠 Cerebral Cortex - Higher Processing"]
+        
+        subgraph PrefrontalCortex["🎯 Prefrontal Cortex<br/>Executive Functions"]
+            Planning["Planning Node<br/>• Goal Setting<br/>• Strategy Formation<br/>• Task Decomposition"]
+            DecisionMaking["Decision Making<br/>• Option Evaluation<br/>• Risk Assessment<br/>• Choice Selection"]
+            Reasoning["Reasoning Engine<br/>• Logical Analysis<br/>• Causal Inference<br/>• Problem Solving"]
+        end
+        
+        subgraph TemporalLobe["📚 Temporal Lobe<br/>Memory Systems"]
+            ShortTermMem["Short-term Memory<br/>• Current Context<br/>• Recent Interactions<br/>• Active Tasks"]
+            LongTermMem["Long-term Memory<br/>• Knowledge Base<br/>• Past Experiences<br/>• Learned Patterns"]
+            SemanticMem["Semantic Memory<br/>• Embeddings<br/>• Associations<br/>• Concepts"]
+        end
+        
+        subgraph ParietalLobe["🔧 Parietal Lobe<br/>Tool Integration"]
+            ToolRouter["Tool Router<br/>• Tool Selection<br/>• Parameter Mapping<br/>• Capability Matching"]
+            ToolExecutor["Tool Executor<br/>• Safe Execution<br/>• Result Processing<br/>• Error Handling"]
+        end
+    end
+    
+    subgraph Limbic["💭 Limbic System - Emotional & Safety"]
+        
+        subgraph Amygdala["⚠️ Amygdala<br/>Threat Detection"]
+            Guardrails["Guardrails<br/>• Content Filtering<br/>• PII Detection<br/>• Injection Prevention"]
+            SafetyCheck["Safety Checker<br/>• Code Validation<br/>• Risk Assessment<br/>• Compliance"]
+        end
+        
+        subgraph Hippocampus["🔄 Hippocampus<br/>Memory Formation"]
+            MemConsolidation["Memory Consolidation<br/>• Important Events<br/>• Pattern Recognition<br/>• Learning"]
+        end
+    end
+    
+    subgraph Cerebellum["⚙️ Cerebellum - Coordination"]
+        WorkflowOrch["Workflow Orchestrator<br/>• Step Coordination<br/>• Parallel Processing<br/>• Synchronization"]
+        NodeCoordinator["Node Coordinator<br/>• Inter-node Communication<br/>• State Management<br/>• Resource Allocation"]
+    end
+    
+    subgraph BrainStem["🔌 Brain Stem - Core Functions"]
+        SessionManager["Session Manager<br/>• Lifecycle Control<br/>• State Persistence<br/>• Recovery"]
+        EventBus["Event Bus<br/>• Message Routing<br/>• Event Processing<br/>• Notifications"]
+    end
+    
+    subgraph Motor["🤖 Motor Cortex - Actions"]
+        ResponseGen["Response Generator<br/>• Natural Language<br/>• Structured Output<br/>• Formatting"]
+        ActionExecutor["Action Executor<br/>• Commands<br/>• Operations<br/>• Side Effects"]
+    end
+    
+    subgraph Reflection["🔍 Reflection Loop"]
+        QualityAnalysis["Quality Analysis<br/>• Confidence Score<br/>• Gap Detection<br/>• Improvement Areas"]
+        SelfCorrection["Self-Correction<br/>• Error Recovery<br/>• Refinement<br/>• Optimization"]
+    end
+    
+    %% Neural Pathways (Connections)
+    UserQuery --> PrefrontalCortex
+    Context --> TemporalLobe
+    Signals --> BrainStem
+    
+    PrefrontalCortex --> Planning
+    Planning --> Reasoning
+    Reasoning --> DecisionMaking
+    
+    DecisionMaking --> ToolRouter
+    ToolRouter --> ToolExecutor
+    
+    ShortTermMem <--> LongTermMem
+    LongTermMem <--> SemanticMem
+    
+    TemporalLobe --> MemConsolidation
+    MemConsolidation --> LongTermMem
+    
+    PrefrontalCortex --> Guardrails
+    Guardrails --> SafetyCheck
+    
+    DecisionMaking --> WorkflowOrch
+    WorkflowOrch --> NodeCoordinator
+    NodeCoordinator --> EventBus
+    
+    ToolExecutor --> ActionExecutor
+    DecisionMaking --> ResponseGen
+    
+    ActionExecutor --> QualityAnalysis
+    ResponseGen --> QualityAnalysis
+    QualityAnalysis --> SelfCorrection
+    SelfCorrection -.->|Feedback| PrefrontalCortex
+    
+    %% Output
+    ResponseGen --> Output[/"Output<br/>• Response<br/>• Actions<br/>• Updates"/]
+    ActionExecutor --> Output
+    
+    %% Memory Updates
+    QualityAnalysis -.->|Learn| MemConsolidation
+    
+    style CerebralCortex fill:#1e1e3f,stroke:#8b5cf6,stroke-width:3px
+    style Limbic fill:#2d1b47,stroke:#ec4899,stroke-width:2px
+    style Cerebellum fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px
+    style BrainStem fill:#1e453f,stroke:#10b981,stroke-width:2px
+    style Motor fill:#3f2e1e,stroke:#f59e0b,stroke-width:2px
+    style Reflection fill:#3f1e2e,stroke:#ef4444,stroke-width:2px

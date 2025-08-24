@@ -34,6 +34,7 @@ providers:
         input_tokens_per_minute: 5000
         output_tokens_per_minute: 2000
     settings:
+      base_url: "https://your-internal-api.com/v1" # modify this to custom endpoint
       temperature: 0.7
       max_tokens: 4096
       timeout: 30
@@ -44,6 +45,7 @@ providers:
     models: []
     rate_limits: []
     settings:
+      base_url: "https://your-internal-api.com/v1" # modify this to custom endpoint
       temperature: 0.7
       max_tokens: 4096
       timeout: 30
