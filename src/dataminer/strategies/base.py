@@ -173,9 +173,13 @@ class BaseExtractionStrategy(ABC, Generic[T]):
         """Initialize LLM, MCP, and Copilot integrations"""
         try:
             # Initialize LLM client
-            if LLMManager:
-                from src.llm import LLMManager
-                # Create LLM manager instance directly
+            # First check if we have an llm_manager attribute set on the strategy
+            if hasattr(self, 'llm_manager') and self.llm_manager:
+                manager = self.llm_manager
+                # Use provider string directly
+                context.llm_client = manager.get_client(context.config.preferred_provider)
+            elif LLMManager:
+                # Fallback: Create LLM manager instance directly
                 manager = LLMManager()
                 # Use provider string directly
                 context.llm_client = manager.get_client(context.config.preferred_provider)
