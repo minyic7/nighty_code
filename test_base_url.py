@@ -127,9 +127,9 @@ async def test_llm_module_with_base_url():
         pool = client.pool
         print(f"\n✓ Pool Details:")
         print(f"  - Pool ID: {id(pool)}")
-        print(f"  - Min size: {pool._min_size}")
-        print(f"  - Max size: {pool._max_size}")
-        print(f"  - Configs count: {len(pool._configs)}")
+        print(f"  - Min size: {pool.pool_config.min_size}")
+        print(f"  - Max size: {pool.pool_config.max_size}")
+        print(f"  - Configs count: {len(pool.configs)}")
         
         # Check provider details
         if pool._clients:
@@ -147,18 +147,14 @@ async def test_llm_module_with_base_url():
                     print(f"  - Base URL configured: {provider.client.base_url}")
         
         # Test completion
-        request = CompletionRequest(
-            messages=[
-                Message(role=MessageRole.USER, content="Hello, GenAI!")
-            ],
-            temperature=0.7,
-            max_tokens=50
-        )
+        messages = [
+            Message(role=MessageRole.USER, content="Hello, GenAI!")
+        ]
         
         print(f"\n✓ Created completion request")
         
         try:
-            response = await client.complete(request)
+            response = await client.complete(messages, temperature=0.7, max_tokens=50)
             print(f"✓ Completion successful!")
             print(f"  Response: {response.content}")
             print(f"  Provider: {response.provider.value}")

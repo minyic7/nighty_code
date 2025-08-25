@@ -73,19 +73,15 @@ async def test_openai_provider():
         print(f"✓ Retrieved OpenAI client from manager")
         
         # Test completion
-        request = CompletionRequest(
-            messages=[
-                Message(role=MessageRole.USER, content="Say hello in 5 words")
-            ],
-            temperature=0.7,
-            max_tokens=20
-        )
+        messages = [
+            Message(role=MessageRole.USER, content="Say hello in 5 words")
+        ]
         
         print(f"✓ Created completion request")
         print(f"  Attempting to send request...")
         
         try:
-            response = await client.complete(request)
+            response = await client.complete(messages, temperature=0.7, max_tokens=20)
             print(f"✓ OpenAI Response: {response.content}")
             print(f"  - Model used: {response.model}")
             print(f"  - Provider: {response.provider.value}")
@@ -140,25 +136,21 @@ async def test_genai_provider():
         # Get pool information
         pool = client.pool
         print(f"✓ Connection pool info:")
-        print(f"  - Min size: {pool._min_size}")
-        print(f"  - Max size: {pool._max_size}")
+        print(f"  - Min size: {pool.pool_config.min_size}")
+        print(f"  - Max size: {pool.pool_config.max_size}")
         print(f"  - Current clients: {len(pool._clients)}")
-        print(f"  - Available clients: {len(pool._available)}")
+        print(f"  - Available clients: {pool._available.qsize()}")
         
         # Test completion
-        request = CompletionRequest(
-            messages=[
-                Message(role=MessageRole.USER, content="Say hello!")
-            ],
-            temperature=0.7,
-            max_tokens=50
-        )
+        messages = [
+            Message(role=MessageRole.USER, content="Say hello!")
+        ]
         
         print(f"✓ Created completion request for GenAI")
         print(f"  Attempting to send request...")
         
         try:
-            response = await client.complete(request)
+            response = await client.complete(messages, temperature=0.7, max_tokens=50)
             print(f"✓ GenAI Response: {response.content}")
             print(f"  - Model used: {response.model}")
             print(f"  - Provider: {response.provider.value}")
@@ -229,7 +221,7 @@ async def test_manager_debug_info():
                 client = manager.get_client(provider)
                 print(f"    - Client available: Yes")
                 print(f"    - Pool size: {len(client.pool._clients)}")
-                print(f"    - Available connections: {len(client.pool._available)}")
+                print(f"    - Available connections: {client.pool._available.qsize()}")
             except Exception as e:
                 print(f"    - Client available: No ({e})")
                 
