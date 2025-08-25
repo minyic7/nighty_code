@@ -57,6 +57,7 @@ class ConfigManager:
                 Path("config/llm.yaml"),
                 Path("../../../config/llm.yaml"),  # When running from src/llm/core
                 Path(__file__).parent.parent.parent.parent / "config" / "llm.yaml",
+                Path(__file__).parent.parent.parent.parent / "llm.yaml",  # Project root
             ]
             for path in possible_paths:
                 if path.exists():

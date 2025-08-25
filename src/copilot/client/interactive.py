@@ -36,7 +36,10 @@ class InteractiveCopilot:
         try:
             # Initialize LLM
             llm_manager = await get_llm_manager()
-            llm_client = llm_manager.get_client(LLMProvider.ANTHROPIC)
+            
+            # Use provider from config or default
+            provider = LLMProvider(self.config.default_provider)
+            llm_client = llm_manager.get_client(provider)
             
             # Initialize MCP Manager
             self.mcp_manager = MCPManager()

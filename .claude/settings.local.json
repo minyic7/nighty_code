@@ -15,7 +15,12 @@
       "Bash(cp:*)",
       "Bash(touch:*)",
       "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_copilot.py)",
-      "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_copilot_structure.py)"
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_copilot_structure.py)",
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_llm.py)",
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_copilot_providers.py)",
+      "Bash(source:*)",
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python -c \"\nimport asyncio\nfrom src.llm import get_llm_manager, LLMProvider\n\nasync def test():\n    manager = await get_llm_manager()\n    providers = manager.list_providers()\n    print(f''Configured providers: {[p.value for p in providers]}'')\n    \n    # Check default\n    try:\n        client = manager.get_client()\n        print(f''Default provider: {client._pool._configs[0].provider.value}'')\n    except Exception as e:\n        print(f''Default provider error: {e}'')\n\nasyncio.run(test())\n\")",
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python:*)"
     ],
     "deny": [],
     "ask": [],
