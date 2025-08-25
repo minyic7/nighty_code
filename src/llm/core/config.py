@@ -52,17 +52,21 @@ class ConfigManager:
         
         # Load configuration from YAML file
         if config_path is None:
-            # Look for config file in standard locations
-            possible_paths = [
-                Path("config/llm.yaml"),
-                Path("../../../config/llm.yaml"),  # When running from src/llm/core
-                Path(__file__).parent.parent.parent.parent / "config" / "llm.yaml",
-                Path(__file__).parent.parent.parent.parent / "llm.yaml",  # Project root
-            ]
-            for path in possible_paths:
-                if path.exists():
-                    config_path = str(path)
-                    break
+            # Check environment variable first
+            config_path = os.environ.get('LLM_CONFIG_PATH')
+            
+            if not config_path:
+                # Look for config file in standard locations
+                possible_paths = [
+                    Path("config/llm.yaml"),
+                    Path("../../../config/llm.yaml"),  # When running from src/llm/core
+                    Path(__file__).parent.parent.parent.parent / "config" / "llm.yaml",
+                    Path(__file__).parent.parent.parent.parent / "llm.yaml",  # Project root
+                ]
+                for path in possible_paths:
+                    if path.exists():
+                        config_path = str(path)
+                        break
         
         if config_path and Path(config_path).exists():
             self._load_from_yaml(config_path)

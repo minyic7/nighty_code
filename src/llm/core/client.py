@@ -176,8 +176,8 @@ class LLMClient(AsyncContextManagerMixin):
             if self.provider == LLMProvider.ANTHROPIC:
                 # Anthropic-specific patching
                 patched_client = instructor.from_anthropic(provider_client)
-            elif self.provider == LLMProvider.OPENAI:
-                # OpenAI-specific patching
+            elif self.provider == LLMProvider.OPENAI or self.provider == LLMProvider.GENAI:
+                # OpenAI-specific patching (GenAI uses OpenAI client format)
                 patched_client = instructor.from_openai(provider_client)
             else:
                 # Generic patching
@@ -198,7 +198,8 @@ class LLMClient(AsyncContextManagerMixin):
                         max_retries=self.instructor_config.max_retries,
                         **kwargs
                     )
-                elif self.provider == LLMProvider.OPENAI:
+                elif self.provider == LLMProvider.OPENAI or self.provider == LLMProvider.GENAI:
+                    # OpenAI and GenAI use the same format
                     result = await patched_client.chat.completions.create(
                         model=self.model,
                         messages=provider_messages,

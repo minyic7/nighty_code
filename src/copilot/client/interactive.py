@@ -38,7 +38,7 @@ class InteractiveCopilot:
             llm_manager = await get_llm_manager()
             
             # Use provider from config or default
-            provider = LLMProvider(self.config.default_provider)
+            provider = LLMProvider(self.config.llm_provider)
             llm_client = llm_manager.get_client(provider)
             
             # Initialize MCP Manager
