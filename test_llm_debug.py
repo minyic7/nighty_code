@@ -19,8 +19,14 @@ async def debug_test():
     
     # Get the LLM manager
     print("📦 Initializing LLM Manager...")
-    manager = await get_llm_manager()
-    print("✅ Manager initialized\n")
+    try:
+        manager = await get_llm_manager()
+        print("✅ Manager initialized successfully\n")
+    except Exception as e:
+        print(f"❌ Failed to initialize manager: {e}")
+        import traceback
+        traceback.print_exc()
+        return
     
     # ========== SECTION 1: Configuration Manager ==========
     print("=" * 80)
@@ -101,6 +107,17 @@ async def debug_test():
             
             if hasattr(pool, '_clients'):
                 print(f"    - Client instances in pool: {len(pool._clients)}")
+                # Show each client's status
+                for k, pool_client in enumerate(pool._clients):
+                    print(f"      Client {k+1} status:")
+                    if hasattr(pool_client, '_status'):
+                        status = pool_client._status
+                        print(f"        - Available: {status.is_available}")
+                        print(f"        - In use: {status.in_use}")
+                        print(f"        - Error count: {status.error_count}")
+                        print(f"        - Total requests: {status.total_requests}")
+                    if hasattr(pool_client, '_client_id'):
+                        print(f"        - Client ID: {pool_client._client_id}")
             
             if hasattr(pool, '_semaphore'):
                 print(f"    - Semaphore limit: {pool._semaphore._value}/{pool._semaphore._initial_value}")
@@ -150,18 +167,43 @@ async def debug_test():
     # Check the actual base URL being used
     print("\n🔍 Checking OpenAI client configuration:")
     if hasattr(client, 'pool') and hasattr(client.pool, '_clients'):
-        for pool_client in client.pool._clients:
+        print(f"  Pool has {len(client.pool._clients)} client(s)")
+        for i, pool_client in enumerate(client.pool._clients):
+            print(f"\n  Client #{i+1}:")
+            
+            # Check client status first
+            if hasattr(pool_client, '_status'):
+                status = pool_client._status
+                print(f"    Status: {'✅ Available' if status.is_available else '❌ NOT AVAILABLE'}")
+                if not status.is_available:
+                    print(f"    ⚠️  Client is marked as unavailable!")
+                print(f"    Error count: {status.error_count}")
+            
+            # Check the OpenAI client object
             if hasattr(pool_client, 'client'):  # OpenAI provider has .client attribute
                 openai_client = pool_client.client
-                if hasattr(openai_client, 'base_url'):
-                    print(f"  • Base URL in use: {openai_client.base_url}")
-                if hasattr(openai_client, '_base_url'):
-                    print(f"  • Base URL (private): {openai_client._base_url}")
-                if hasattr(openai_client, 'api_key'):
-                    print(f"  • API Key: ***...{openai_client.api_key[-10:] if openai_client.api_key else 'None'}")
+                print(f"    OpenAI client object: {type(openai_client).__name__ if openai_client else 'None'}")
+                if openai_client:
+                    if hasattr(openai_client, 'base_url'):
+                        print(f"    Base URL in use: {openai_client.base_url}")
+                    if hasattr(openai_client, '_base_url'):
+                        print(f"    Base URL (private): {openai_client._base_url}")
+                    if hasattr(openai_client, 'api_key'):
+                        print(f"    API Key: ***...{openai_client.api_key[-10:] if openai_client.api_key else 'None'}")
+            else:
+                print(f"    No 'client' attribute found")
+            
+            # Check configuration
             if hasattr(pool_client, 'config'):
-                print(f"  • Config base_url: {pool_client.config.base_url or 'None (using default)'}")
-                print(f"  • Config model: {pool_client.config.model}")
+                print(f"    Config base_url: {pool_client.config.base_url or 'None (using default)'}")
+                print(f"    Config model: {pool_client.config.model}")
+                print(f"    Config provider: {pool_client.config.provider.value}")
+            
+            # Check client ID
+            if hasattr(pool_client, '_client_id'):
+                print(f"    Internal client ID: {pool_client._client_id}")
+    else:
+        print("  ⚠️  Could not access pool clients")
     
     # Simple question
     question = "What is 2 + 2?"
@@ -170,6 +212,8 @@ async def debug_test():
     try:
         import time
         start_time = time.time()
+        
+        print("\n📤 Sending request to LLM...")
         
         # Make the request
         messages = [Message(role=MessageRole.USER, content=question)]
@@ -181,6 +225,7 @@ async def debug_test():
         
         elapsed = time.time() - start_time
         
+        print(f"✅ Response received!")
         print(f"💬 Answer: {response.content}")
         print(f"⏱️  Response time: {elapsed:.2f}s")
         print(f"🤖 Model used: {response.model}")
@@ -190,7 +235,19 @@ async def debug_test():
             print(f"📊 Token usage: {response.usage}")
         
     except Exception as e:
-        print(f"❌ Query failed: {e}")
+        print(f"\n❌ Query failed with error: {type(e).__name__}")
+        print(f"❌ Error message: {str(e)}")
+        
+        # Check if it's a specific LLM error
+        if "not available" in str(e).lower():
+            print("\n⚠️  CLIENT NOT AVAILABLE ERROR DETECTED!")
+            print("This usually means:")
+            print("  1. Connection validation failed during initialization")
+            print("  2. API key is invalid")
+            print("  3. Network/proxy issues")
+            print("  4. Base URL is incorrect or blocked")
+        
+        print("\n📋 Full traceback:")
         import traceback
         traceback.print_exc()
     
