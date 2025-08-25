@@ -13,7 +13,9 @@
       "Bash(sed:*)",
       "Bash(pip install:*)",
       "Bash(cp:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_copilot.py)",
+      "Bash(/opt/anaconda3/envs/nighty_code/bin/python test_copilot_structure.py)"
     ],
     "deny": [],
     "ask": [],

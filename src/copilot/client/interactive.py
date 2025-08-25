@@ -227,7 +227,8 @@ class InteractiveCopilot:
         if self.mcp_manager:
             servers = self.mcp_manager.get_servers()
             for server in servers.values():
-                await server.close()
+                if hasattr(server, 'close'):
+                    await server.close()
 
 
 async def main():
