@@ -167,11 +167,27 @@ class OpenAIProvider(BaseLLMProvider):
             raise LLMProviderError(f"OpenAI streaming failed: {e}")
     
     async def validate_connection(self) -> bool:
-        """Validate the connection to OpenAI"""
+        """Validate the connection to OpenAI - Fixed to use models.list() as fallback"""
         try:
-            # Try a minimal API call to validate the connection
-            response = await self.client.models.retrieve(self.config.model)
-            return response.id == self.config.model
+            # Method 1: Try the original validation first (works for standard OpenAI)
+            try:
+                response = await self.client.models.retrieve(self.config.model)
+                if response.id == self.config.model:
+                    return True
+            except Exception:
+                pass  # Fallback to Method 2
+            
+            # Method 2: List models and check if our model exists (works for proxies/Azure)
+            models_response = await self.client.models.list()
+            available_models = [model.id for model in models_response.data]
+            
+            if self.config.model in available_models:
+                logger.info(f"Model '{self.config.model}' validated using models.list()")
+                return True
+            else:
+                logger.warning(f"Model '{self.config.model}' not found in available models")
+                return False
+                
         except Exception as e:
             logger.warning(f"OpenAI connection validation failed: {e}")
             return False
