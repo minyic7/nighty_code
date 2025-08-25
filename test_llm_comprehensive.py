@@ -138,7 +138,7 @@ async def test_genai_provider():
         print(f"✓ Retrieved GenAI client from manager")
         
         # Get pool information
-        pool = client._pool
+        pool = client.pool
         print(f"✓ Connection pool info:")
         print(f"  - Min size: {pool._min_size}")
         print(f"  - Max size: {pool._max_size}")
@@ -228,8 +228,8 @@ async def test_manager_debug_info():
             try:
                 client = manager.get_client(provider)
                 print(f"    - Client available: Yes")
-                print(f"    - Pool size: {len(client._pool._clients)}")
-                print(f"    - Available connections: {len(client._pool._available)}")
+                print(f"    - Pool size: {len(client.pool._clients)}")
+                print(f"    - Available connections: {len(client.pool._available)}")
             except Exception as e:
                 print(f"    - Client available: No ({e})")
                 
@@ -282,8 +282,8 @@ async def test_provider_switching():
         
         # Check pool configurations
         print(f"\nPool configurations:")
-        print(f"  OpenAI pool ID: {id(openai_client._pool)}")
-        print(f"  GenAI pool ID: {id(genai_client._pool)}")
+        print(f"  OpenAI pool ID: {id(openai_client.pool)}")
+        print(f"  GenAI pool ID: {id(genai_client.pool)}")
         
     except Exception as e:
         print(f"✗ Provider switching error: {e}")

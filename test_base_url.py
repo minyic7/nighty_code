@@ -124,7 +124,7 @@ async def test_llm_module_with_base_url():
         print(f"✓ Retrieved client")
         
         # Check pool details
-        pool = client._pool
+        pool = client.pool
         print(f"\n✓ Pool Details:")
         print(f"  - Pool ID: {id(pool)}")
         print(f"  - Min size: {pool._min_size}")
