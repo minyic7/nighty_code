@@ -9,6 +9,7 @@ class LLMProvider(str, Enum):
     """Supported LLM providers"""
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+    GENAI = "genai"
     # Add more providers as needed
 
 

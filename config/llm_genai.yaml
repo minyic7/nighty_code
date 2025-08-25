@@ -1,0 +1,62 @@
+# LLM Configuration File with GenAI Provider
+
+# Global settings
+global:
+  default_provider: genai  # Use GenAI as default
+  enable_logging: true
+  log_level: INFO
+  metrics_enabled: true
+
+# Provider configurations
+providers:
+  anthropic:
+    api_keys: []
+    models: []
+    rate_limits: []
+    settings:
+      temperature: 0.7
+      max_tokens: 4096
+      timeout: 30
+      max_retries: 3
+  
+  openai:
+    api_keys: 
+      - PLACE_HOLDER  # Replace with actual key if needed
+    models: 
+      - gpt-3.5-turbo
+    rate_limits: 
+      - requests_per_minute: 90
+        input_tokens_per_minute: 90000
+        output_tokens_per_minute: 20000
+    settings:
+      temperature: 0.7
+      max_tokens: 2000
+      timeout: 30
+      max_retries: 3
+  
+  genai:
+    api_keys:
+      - PLACE_HOLDER # Your GenAI API key
+    models:
+      - guardrails-bedrock-claude-4-sonnet  # GenAI model
+    rate_limits:
+      - requests_per_minute: 100
+        input_tokens_per_minute: 100000
+        output_tokens_per_minute: 50000
+    settings:
+      base_url: PLACE_HOLDER
+      temperature: 0.7
+      max_tokens: 4096
+      timeout: 60  # Longer timeout for corporate network
+      max_retries: 3
+
+# Connection pool configuration
+pool:
+  min_size: 1
+  max_size: 5
+  acquire_timeout: 30.0
+  idle_timeout: 3600.0
+  max_lifetime: 7200.0
+  retry_on_error: true
+  health_check_interval: 60.0
+  enable_metrics: true

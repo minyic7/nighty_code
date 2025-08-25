@@ -4,12 +4,14 @@ from typing import Type, Dict
 from .base import BaseLLMProvider
 from .anthropic import AnthropicProvider
 from .openai import OpenAIProvider
+from .genai import GenAIProvider
 
 
 # Registry of available providers
 PROVIDERS: Dict[str, Type[BaseLLMProvider]] = {
     "anthropic": AnthropicProvider,
     "openai": OpenAIProvider,
+    "genai": GenAIProvider,
 }
 
 
@@ -25,6 +27,7 @@ __all__ = [
     "BaseLLMProvider",
     "AnthropicProvider",
     "OpenAIProvider",
+    "GenAIProvider",
     "get_provider",
     "PROVIDERS",
 ]
