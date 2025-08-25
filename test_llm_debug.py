@@ -147,6 +147,22 @@ async def debug_test():
     print("\n🎯 Using default provider for test query...")
     client = manager.get_client()  # Uses default
     
+    # Check the actual base URL being used
+    print("\n🔍 Checking OpenAI client configuration:")
+    if hasattr(client, 'pool') and hasattr(client.pool, '_clients'):
+        for pool_client in client.pool._clients:
+            if hasattr(pool_client, 'client'):  # OpenAI provider has .client attribute
+                openai_client = pool_client.client
+                if hasattr(openai_client, 'base_url'):
+                    print(f"  • Base URL in use: {openai_client.base_url}")
+                if hasattr(openai_client, '_base_url'):
+                    print(f"  • Base URL (private): {openai_client._base_url}")
+                if hasattr(openai_client, 'api_key'):
+                    print(f"  • API Key: ***...{openai_client.api_key[-10:] if openai_client.api_key else 'None'}")
+            if hasattr(pool_client, 'config'):
+                print(f"  • Config base_url: {pool_client.config.base_url or 'None (using default)'}")
+                print(f"  • Config model: {pool_client.config.model}")
+    
     # Simple question
     question = "What is 2 + 2?"
     print(f"\n❓ Question: {question}")
